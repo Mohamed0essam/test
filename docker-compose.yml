@@ -12,6 +12,7 @@ services:
   # NodeJS Services
  api:
   build: .
+  container_name: api_container
   image: backend:v1
   ports:
    - 3000:3000
