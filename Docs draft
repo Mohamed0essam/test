@@ -1,0 +1,8 @@
+- draft version of docs:
+	- authn routes: 
+	in each api have to sent token in req.headers.authorization.
+	
+	
+	search about api docs template.
+	
+		

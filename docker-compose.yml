@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+ # MongoDB Services
+ mongo_db:
+  container_name: db_container
+  image: mongo:latest
+  restart: always
+  volumes:
+   - mongo_db:/data/db
+
+  # NodeJS Services
+ api:
+  build: .
+  ports:
+   - 3000:3000
+  environment: 
+   PORT: 3000
+   MONGO_URI: mongodb+srv://talal16046:pFLzDsPvvgX5U@cluster0.uak9mfj.mongodb.net/
+   JWT_SECRET: 3j$4@2Rv8*Wn6#yP
+   jwtExpiration: 3000
+  depends_on:
+   - mongo_db
+
+volumes:
+ mongo_db: {}
+ 
