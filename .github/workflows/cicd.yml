@@ -42,7 +42,7 @@ jobs:
             DOCKER_HUB_ACCESS_TOKEN=${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           script: |
             echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-            docker pull mohamedessam0/backend:v1
-            docker stop api_container || true
-            docker rm api_container || true
-            docker run -d --name api_container -p 80:3000 mohamedessam0/backend:v1
+            sudo docker pull mohamedessam0/backend:v1
+            sudo docker stop api_container || true
+            sudo docker rm api_container || true
+            sudo docker run -d --name api_container -p 80:3000 mohamedessam0/backend:v1
