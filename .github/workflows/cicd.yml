@@ -53,5 +53,5 @@ jobs:
           script: |
             cd /home/ubuntu/myapp
             echo $DOCKER_HUB_ACCESS_TOKEN | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-            sudo docker-compose -f ~/docker-compose.yml pull
-            sudo docker-compose -f ~/docker-compose.yml up -d
+            sudo docker-compose -f ~/myapp docker-compose.yml pull
+            sudo docker-compose -f ~/myapp docker-compose.yml up -d
