@@ -52,6 +52,6 @@ jobs:
             DOCKER_HUB_ACCESS_TOKEN=${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           script: |
             cd /home/ubuntu/myapp
-            echo $DOCKER_HUB_ACCESS_TOKEN | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+            echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
             sudo docker-compose -f ~/myapp docker-compose.yml pull
             sudo docker-compose -f ~/myapp docker-compose.yml up -d
