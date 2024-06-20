@@ -59,9 +59,11 @@ const PostSchema = new mongoose.Schema
             }
         ], //URL 
         whoLiked: 
-        {
-            type:mongoose.Schema.Types.ObjectId, ref:"User"
-        },
+        [
+            {
+                type:mongoose.Schema.Types.ObjectId, ref:"User"
+            }
+        ],
         comments: 
         [
             {

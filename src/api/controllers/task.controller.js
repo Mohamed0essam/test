@@ -7,8 +7,8 @@ const groupServices = require('../services/group.services')
 const createTask = async(req, res) => 
 {
     const userID = req.user.id
-    const {groupID, taskName, taskDesc, startDate, endDate, attachedFiles} = req.body
-    const newTask = await taskServices.createTask(userID, {groupID, taskName, taskDesc, startDate, endDate, attachedFiles})
+    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles} = req.body
+    const newTask = await taskServices.createTask(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles)
     if (!newTask) 
         return res.status(400).json("Invalid data").end()
     await groupServices.updateGroup(groupID, {$push: {tasks: newTask._id}})
@@ -28,8 +28,9 @@ const readAllTasks = async(req, res) =>
 
 const readTask = async(req, res) => 
 {
+    const userID = req.user.id
     const taskID = req.params
-    const task = await taskServices.readTask(taskID)
+    const task = await taskServices.readTask(taskID, userID)
     if (!task) 
         return res.status(404).json('No task with this ID').end()
     return res.status(200).json(task).end()
@@ -39,7 +40,7 @@ const readTask = async(req, res) =>
 const readTodayTasks = async(req, res) =>
 {
     const userID = req.user.id
-    console.log(userID)
+    
     const todayTasks = await taskServices.readTodayTasks(userID)
     if (!todayTasks)
         return res.status(400).json('Failed to get today\'s tasks').end()
@@ -49,9 +50,9 @@ const readTodayTasks = async(req, res) =>
 // Update task
 const updateTask = async(req, res) => 
 {
-    const taskID = req.params
-    const {taskName, taskDesc, startDate, endDate, attachedFiles} = req.body
-    const updatedTask = await taskServices.updateTask(taskID, {taskName, taskDesc, startDate, endDate, attachedFiles})
+    const taskID = req.params._id
+    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles} = req.body
+    const updatedTask = await taskServices.updateTask(taskID, {taskName, taskDesc, isHabit, startDate, endDate, attachedFiles})
     if (!updatedTask) 
         return res.status(400).json('Invalid data').end()
     
@@ -59,31 +60,33 @@ const updateTask = async(req, res) =>
 }
 
 
+// Mark task as done
+const markTask = async(req, res) =>
+{
+    const userID = req.user.id
+    const taskID = req.params._id
+    const result = await taskServices.markTask(userID, taskID)
+    if (!result)
+        return res.status(400).json("Couldn't mark task as done").end()
+    return res.status(200).json("Task marked done successfully").end()
+}
+
+
 // Delete task
 const deleteTask = async(req, res) => 
 {
     let taskID = req.params
-    const task = await taskServices.readTask(taskID)
-    if (!task)
-        return res.status(404).josn('No task with this ID').end()
-    
-    const groupID = task.group
-    taskID = task._id
+
     const deleteCount = await taskServices.deleteTask(taskID)
     if (deleteCount <= 0) 
         return res.status(404).json("The task could not be deleted").end()
+    else if (!deleteCount)
+        return res.status(404).json('No task with this ID').end()
     
-    await groupServices.updateGroup(groupID, {$pull: {tasks: taskID}})
     return res.status(200).json("The task has been deleted").end()
     // check user tasks
 }
 
-
-// Search tasks
-const  searchTasks = async (req, res) => 
-{
-
-}
 
 
 module.exports = 
@@ -93,6 +96,6 @@ module.exports =
     readTask,
     readTodayTasks,
     updateTask,
-    deleteTask,
-    searchTasks
+    markTask,
+    deleteTask
 }

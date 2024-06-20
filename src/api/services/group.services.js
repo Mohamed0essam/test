@@ -1,16 +1,22 @@
 
 const Group = require('../models/group.model')
+const User = require('../models/user.model')
 const taskServices = require('../services/task.services')
 
 
 // Create group
-const  createGroup = async({ name, owner, description, startAt, deadline, privacy, groupPhoto}) => 
+const  createGroup = async(userID, { name, description, startAt, deadline, privacy, groupPhoto}) => 
 {
     try 
     {
-        const group = new Group({name, owner, description, startAt, deadline, privacy, groupPhoto})
-        group.joinedUsers= [owner] // Add the creator of the group to joined users list
+        const group = new Group({name, owner:userID, description, startAt, deadline, privacy, groupPhoto})
+        group.joinedUsers= [userID] // Add the creator of the group to joined users list
         const newGroup = await group.save()
+
+        const created = await User.findByIdAndUpdate(userID, {$push: {createdTodoLists: newGroup._id}})
+        if (!created)
+            return null
+
         return newGroup
     } 
     catch (err) 
@@ -34,13 +40,18 @@ const readAllGroups = async() =>
 }
 
 // Read group
-const readGroup = async(groupID) => 
+const readGroup = async(groupID, userID) => 
 {
     try 
     {
-        const group = await Group.findById(groupID, {name:1, groupPhoto:1, privacy:1, description:1, createdAt:1, endDate:1})
-        const tasks = await taskServices.readGroupTasks(groupID)
-        return {group,tasks}
+        let participants = 0
+        const joinedParticipants = await Group.findById(groupID, {joinedUsers:1})
+        const group = await Group.findById(groupID, {owner:1, name:1, groupPhoto:1, privacy:1, description:1, createdAt:1, endDate:1})
+        const owner = await User.findById(group.owner, {firstName:1, lastName:1})
+        const tasks = await taskServices.readGroupTasks(groupID, userID)
+        for (let user in joinedParticipants.joinedUsers)
+            participants += 1
+        return {owner, group, participants, tasks}
     } 
     catch (err) 
     {
@@ -48,16 +59,39 @@ const readGroup = async(groupID) =>
     }
 }
 
-const readUserGroups = async(userID) => 
+const readUserGroups = async(userID, owner) => 
 {
     try 
     {
-        const groups = await Group.find({joinedUsers : userID}, {name: 1, groupPhoto: 1, privacy:1 })
+        let groups = null
+        if (owner === true)
+            groups = await Group.find({joinedUsers : userID}, {name: 1, groupPhoto: 1, privacy:1 })
+        else
+            groups = await Group.find({joinedUsers : userID, privacy: 'public'}, {name: 1, groupPhoto: 1, privacy:1 })
+        
         return groups
     }
     catch (err)
     {
         console.log('Read user groups error: ' + err)
+    }
+}
+
+
+const readGroupParticipants = async(groupID) =>
+{
+    // Does not require identity checks excpet for anonymous users which should not be able to access any data from the system.
+    try
+    {
+        const group = await Group.findById(groupID, {joinedUsers:1})
+        if(!group) return null
+
+        const participants = await User.find({_id:{$in: group.joinedUsers}}, {firstName:1, lastName:1, firebaseID:1, profilePhoto:1})
+        return participants.reverse()
+    }
+    catch (err)
+    {
+        console.log("Read group participants error: " + err)
     }
 }
 
@@ -76,12 +110,84 @@ const updateGroup = async(groupID, updates) =>
     }
 }
 
+
+const joinGroup = async(userID, groupID) =>
+{
+    try
+    {
+        let group = await Group.find({_id:groupID, joinedUsers:{$in:userID}}, {name:1})
+        if (group == "")
+        {
+            group = await Group.findById(groupID, {privacy:1})
+            if (group.privacy === "private")
+                return false
+            const result = await Group.findByIdAndUpdate(groupID, {$push: {joinedUsers: userID}})
+            result.save()
+            if(!result)
+                return false
+            return true
+        }
+        return false
+    }
+    catch (err)
+    {
+        console.log("Join group error: " + err)
+    }
+}
+
+
+// To leave a group
+const leaveGroup = async(userID, groupID) =>
+{
+    let group = await Group.find({_id:groupID, joinedUsers:{$in:userID}}, {name:1, owner:1})
+    
+    if (!group == "")
+    {
+        if (userID == group.owner)
+            return false
+        else
+        {
+            group = await Group.findByIdAndUpdate(groupID, {$pull: {joinedUsers: userID}})
+            if (!group)
+                return false
+            return true
+        }
+    }
+    return false
+}
+
+
+// Allows admin to remove participants
+const removeParticipant = async(userID, participantID, groupID) => 
+{
+    try
+    {
+        let group = await Group.find({_id: groupID, joinedUsers: {$in: participantID}}, {name:1}) 
+        console.log("Group: " + group)
+        if (group == "")
+            return null
+
+        if (userID === participantID)
+            return null
+        
+        group = await Group.findByIdAndUpdate(groupID, {$pull: {joinedUsers: participantID}})
+        return group       
+    }
+    catch (err)
+    {
+        console.log("Remove participant error: " + err)
+    }
+}
+
+
+
 // Delete group
-const deleteGroup = async(groupID) => 
+const deleteGroup = async(groupID, userID) => 
 {
     try 
     {
-        const deleteCount = await  Group.findByIdAndDelete(groupID)
+        const deleteCount = await Group.findByIdAndDelete(groupID)
+        // const deleteCount = 1
         return deleteCount
     } 
     catch (err) 
@@ -133,7 +239,11 @@ module.exports =
     readAllGroups,
     readGroup,
     readUserGroups,
+    readGroupParticipants,
     updateGroup,
+    joinGroup,
+    leaveGroup,
+    removeParticipant,
     deleteGroup,
     searchUserGroups,
     searchGroups

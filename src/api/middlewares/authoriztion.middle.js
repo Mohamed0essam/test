@@ -11,14 +11,15 @@ const groupAdminCheck = async (req, res, next)=>{
     const userID = req.user.id;
     const groupID = req.body.groupID || req.params;
     // const groupID = req.params;
-    console.log( groupID + "here")
+    // console.log( groupID + "here")
     const group = await Group.findById(groupID, {owner:1});
+    console.log(groupID)
     if(!group){
         return res.status(404).json("group not found").end()
     }
 
     if(userID !== String(group.owner)){
-        console.log(group.owner + " hl")
+        // console.log(group.owner + " hl")
         return res.status(400).json("access denied").end() 
     }
     next();

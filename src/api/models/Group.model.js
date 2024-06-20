@@ -77,7 +77,9 @@ const GroupSchema = new mongoose.Schema
 
         groupPhoto:
         { 
-            type: String
+            type: String,
+            required:true,
+            default:"https://firebasestorage.googleapis.com/v0/b/flutter-8741f.appspot.com/o/Posts%2Fimage%201.png?alt=media&token=2bec8652-fe25-49a7-8f95-be04b641fe80"
         }, // URL or file path
 
         moderator: 

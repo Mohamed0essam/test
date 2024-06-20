@@ -1,27 +1,27 @@
 const mongoose = require("mongoose");
 
 
-whoCompletedTasksSchema = new mongoose.Schema
-(
-  {
-    UserCompleted: 
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    },
+// whoCompletedTasksSchema = new mongoose.Schema
+// (
+//   {
+//     UserCompleted: 
+//     {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User"
+//     },
         
-    taskCompleted: 
-    {
-      type:mongoose.Schema.Types.ObjectId,
-      ref: "Task"
-    },
+//     taskCompleted: 
+//     {
+//       type:mongoose.Schema.Types.ObjectId,
+//       ref: "Task"
+//     },
         
-    dateCompleted: 
-    {
-      type:Date
-    }
-  }
-);
+//     dateCompleted: 
+//     {
+//       type:Date
+//     }
+//   }
+// );
 
 
 const TaskSchema = new mongoose.Schema
@@ -46,11 +46,28 @@ const TaskSchema = new mongoose.Schema
     {
       type: String,
     },
-    status: 
+    // For habits
+    isHabit: 
     {
-      type: String,
+      type: Boolean,
       required: true,
-      default: "Pending Completion"
+      default: false
+    },
+    repetitions:
+    {
+      type: Number, required: true, default: 0   // Make sure that any input from the user smaller than 1 is treated as infinity.
+    },
+    interval:
+    {
+      type: String, enum: ["daily", "weekly", "monthly", "yearly"], required: true, default: "daily"
+    },
+    intervalCycle:
+    {
+      type: Number, required: true, default: 1
+    },
+    habitCounter:
+    {
+      type: Number, required: true, default: 0
     },
     startDate: 
     {
@@ -58,10 +75,12 @@ const TaskSchema = new mongoose.Schema
       required: true,
       default: Date.now()
     },
+    // endDate will be disabled for habits and replaced with repetitions
     endDate: 
     {
       type: Date,
       required: true,
+      default: Date.now()
     },
    // it's a counter, incresed with each user do the task
     completeness: 
@@ -77,13 +96,13 @@ const TaskSchema = new mongoose.Schema
         type:String
       }
     ],
-    whoCompletedTask: 
+    userCompleted: 
     [
       {
-        type: whoCompletedTasksSchema
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
       }
     ]
-    
   },
   {
     timestamps: true,
