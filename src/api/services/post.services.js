@@ -125,7 +125,7 @@ const readPost = async(userID, postID) =>
             "lastName": postOwner.lastName,
             "profilePhoto": postOwner.profilePhoto,
             "isPostOwner": post.owner === userID,
-            "isLiked": post.likes.includes(userID),
+            "likedByUser": post.likes.includes(userID),
             "groupName": postGroup.name,
             "createdAt": post.createdAt,
             "content": post.content,
