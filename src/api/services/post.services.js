@@ -81,7 +81,7 @@ const readAllPosts = async(userID) =>
                     "content": post.content,
                     "attachedMedia": post.attachedMedia,
                     "likes": post.likes.length,
-                    "comments": post.comments.length,
+                    "commentsCount": post.comments.length,
                     "createdAt": post.createdAt
                 }
             )
