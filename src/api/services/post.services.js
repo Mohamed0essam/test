@@ -1,12 +1,14 @@
 // Post CRUD
-const Post = require('../models/post.model')
+
+const commentServices = require('./comment.services')
 const Group = require('../models/group.model')
-const User = require('../models/user.model')
 const participant = require('../middlewares/userValidations.middleware')
+const Post = require('../models/post.model')
+const User = require('../models/user.model')
 require('dotenv').config()
 
 // Create post
-const createPost = async({userID, groupID, taskID, content, attachedMedia}) =>
+const createPost = async({userID, groupID, taskID, content, visibility, attachedMedia}) =>
 {
     try 
     {
@@ -28,6 +30,7 @@ const createPost = async({userID, groupID, taskID, content, attachedMedia}) =>
                 group: groupID, 
                 task: taskID, 
                 content, 
+                visibility,
                 attachedMedia
             }
         )
@@ -42,18 +45,24 @@ const createPost = async({userID, groupID, taskID, content, attachedMedia}) =>
 
 
 // Read all posts
-const readAllPosts = async() => 
+const readAllPosts = async(userID) => 
 {
     try
     {
-        const posts = await Post.find({}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, attachedMedia: 1, likes: 1})
+        const posts = await Post.find({}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1})
+        if (!posts)
+            return false
+
         let collectedPosts = []
-        let user, group, post
+        let user, group, post, liked
         for (post of posts)
         {
+            liked = false
             user = await User.findById(post.owner, {_id: 0, username: 1, firstName: 1, lastName: 1, profilePhoto: 1})
             group = await Group.findById(post.group, {_id: 0, name: 1})
 
+            if(post.likes.includes(userID))
+                liked = true
 
             if (!user || !group)
                 continue
@@ -66,18 +75,17 @@ const readAllPosts = async() =>
                     "firstName": user.firstName,
                     "lastName": user.lastName,
                     "profilePhoto": user.profilePhoto,
-                    "isLiked": "",
+                    "likedByUser": liked,
                     "groupName": group.name,
                     "content": post.content,
                     "attachedMedia": post.attachedMedia,
                     "likes": post.likes.length,
-                    "createdAt": post.createdAt,
-                    // "comments": post.comments.length
+                    "comments": post.comments.length,
+                    "createdAt": post.createdAt
                 }
             )
         }
         return collectedPosts
-        // return posts
     }
     catch (err) 
     {
@@ -87,12 +95,46 @@ const readAllPosts = async() =>
 
 
 // Read post
-const readPost = async(postID) => 
+const readPost = async(userID, postID) => 
 {
     try 
     {
-        const post = await Post.findById(postID)
-        return post
+        const post = await Post.findById(postID, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, attachedMedia: 1, likes: 1, comments: 1})
+        if (!post)
+            return false
+
+        const postOwner = await User.findById(post.owner, {_id: 0, username: 1, firstName: 1, lastName: 1, profilePhoto: 1})
+        const postGroup = await Group.findById(post.group, {_id: 0, name: 1})
+        let foundComments = []
+
+        for (comment of post.comments)
+        {
+            foundComments.push
+            (
+                await commentServices.readComment(userID, postID, comment)
+            )
+        }
+        
+        const foundPost = 
+        {
+            "postID": post._id,
+            "postOwner": post.owner,
+            "username": postOwner.username,
+            "firstName": postOwner.firstName,
+            "lastName": postOwner.lastName,
+            "profilePhoto": postOwner.profilePhoto,
+            "isPostOwner": post.owner === userID,
+            "isLiked": post.likes.includes(userID),
+            "postGroup": postGroup.name,
+            "createdAt": post.createdAt,
+            "content": post.content,
+            "attachedMedia": post.attachedMedia,
+            "likes": post.likes.length,
+            "commentsCount": post.comments.length,
+            "comments": foundComments
+        }
+
+        return foundPost
     }
     catch (err)
     {

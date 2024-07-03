@@ -9,7 +9,7 @@ router.route('/create').post(authnMidlleware.checkSession, postController.create
 
 
 // Read post
-router.route('/read-all/').get(postController.readAllPosts)
+router.route('/read-all/').get(authnMidlleware.checkSession, postController.readAllPosts)
 router.route('/read/:_id').get(authnMidlleware.checkSession, postController.readPost)
 
 

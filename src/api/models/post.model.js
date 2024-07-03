@@ -1,20 +1,5 @@
 const mongoose = require('mongoose');
 
-const CommentSchema = new mongoose.Schema
-(
-    {
-        owner: 
-        {
-            type:mongoose.Schema.Types.ObjectId, ref:"User", 
-            required:true
-        },
-        content: 
-        {
-            type: String, required: true
-        }
-    }
-);
-
 const PostSchema = new mongoose.Schema
 (
     {
@@ -37,6 +22,10 @@ const PostSchema = new mongoose.Schema
         {
             type: String, required:true
         },
+        visibility:
+        {
+            type: Boolean, required: true, default: true
+        },
         attachedMedia: 
         [
             {
@@ -53,7 +42,7 @@ const PostSchema = new mongoose.Schema
         comments: 
         [
             {
-                type: CommentSchema, unique: false, required: false
+                type:mongoose.Schema.Types.ObjectId, ref:"Comment", required: false
             }
         ]
 },

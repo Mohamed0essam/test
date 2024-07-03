@@ -12,10 +12,12 @@ const app = express();
 
 //routers
 authnRouter = require('./api/routes/authn.routes')
-userRouter  = require('./api/routes/user.routes')
+commentRouter = require('./api/routes/comment.routes')
 groupRouter = require('./api/routes/groups.routes')
+postRouter = require('./api/routes/post.routes')
 taskRouter = require('./api/routes/task.routes')
-postRouter = require('./api/routes/post.routes')    
+userRouter  = require('./api/routes/user.routes')
+    
  
 
 //middlewares
@@ -28,10 +30,11 @@ app.use(express.json());
 app.get('/serverTest',(req,res)=>{res.send('hey, test')})
 
 app.use('/api/v1/authn', authnRouter)
-app.use('/api/v1/user', userRouter)
+app.use('/api/v1/comment', commentRouter)
 app.use('/api/v1/group', groupRouter)
-app.use('/api/v1/task', taskRouter)
 app.use('/api/v1/post', postRouter)
+app.use('/api/v1/task', taskRouter)
+app.use('/api/v1/user', userRouter)
 
 // Start the server , connect to database
 

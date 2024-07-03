@@ -6,8 +6,8 @@ const postServices = require('../services/post.services')
 const createPost = async(req, res) =>
 {
     const userID = req.user.id
-    const {groupID, taskID, content, attachedMedia} = req.body
-    const newPost = await postServices.createPost({userID, groupID, taskID, content, attachedMedia})
+    const {groupID, taskID, content, visibility, attachedMedia} = req.body
+    const newPost = await postServices.createPost({userID, groupID, taskID, content, visibility, attachedMedia})
     if (!newPost)
         return res.status(400).json("Invalid data").end()
     
@@ -18,8 +18,8 @@ const createPost = async(req, res) =>
 // Read all posts
 const readAllPosts = async(req, res) =>
 {
-    // const userID = req.user.id  // Use it to see if the current user liked any of the sent posts
-    const posts = await postServices.readAllPosts()
+    const userID = req.user.id  // Use it to see if the current user liked any of the sent posts
+    const posts = await postServices.readAllPosts(userID)
     if (!posts)
         return res.status(404).json('Could not fetch all posts').end()
     
@@ -30,8 +30,9 @@ const readAllPosts = async(req, res) =>
 // Read post
 const readPost = async(req, res) =>
 {
+    const userID = req.user.id
     const postID = req.params
-    const foundPost = await postServices.readPost(postID)
+    const foundPost = await postServices.readPost(userID, postID)
     if (!foundPost)
         return res.status(404).json('Not found').end()
     

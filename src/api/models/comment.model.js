@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ReplySchecma = new mongoose.Schema
+const ReplySchema = new mongoose.Schema
 (
     {
         owner: 
@@ -12,6 +12,9 @@ const ReplySchecma = new mongoose.Schema
         {
             type: String, required: true
         }
+    },
+    {
+        timestamps: true
     }
 );
 
