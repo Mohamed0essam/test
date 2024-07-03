@@ -41,7 +41,7 @@ const findUserByEmail = async (email) => {
       // console.log(email);
       // const user = await User.findOne({email});
       const user = await User.findOne({email}, {createdAt:0, updatedAt:0, achievements:0, dayRecommendedPosts:0, joinedTodoLists:0, following:0}).select('+password');;
-      console.log(user);
+      // console.log(user);
       if (user)
       {
         const profileFollow = await User.findById(user._id, {followers:1, following:1})
@@ -205,12 +205,12 @@ const readFriends = async(userID) =>
 // delete user
 //
 // update user data
-const updateUser = async (userID, {firstName, lastName, gender, birthDate, phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility}, firebaseID) => {
+const updateUser = async (userID, {firstName, lastName, gender, birthDate, phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility, isOnline}, firebaseID) => {
   let user
   try {
     user = await User.findByIdAndUpdate(
     {_id: userID},
-    {firstName, lastName, gender, birthDate, phone:phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility},
+    {firstName, lastName, gender, birthDate, phone:phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility, isOnline},
     { new: true }
     );
       
@@ -349,6 +349,39 @@ const updateUserKey = async(userID, key) =>
 
 
 
+// Add user session to database
+const updateUserSession = async(userID, session) =>
+{
+  try
+  {
+    let updatedSession = await User.findByIdAndUpdate(userID, {session: session})
+    updatedSession = await User.findById(userID, {_id: 0, session: 1})
+    return updatedSession.session
+  }
+  catch (err)
+  {
+    console.log("Update user session error " + err)
+  }
+}
+
+
+
+// Update user's online status
+const updateUserOnlineStatus = async (userID, status) =>
+{
+  try
+  {
+    const userOnlineStatus = await User.findByIdAndUpdate(userID, {isOnline: status})
+    return userOnlineStatus
+  }
+  catch (err)
+  {
+    console.log("Update user online status error " + err)
+  }
+}
+
+
+
 // $regex: new RegExp(`.*${name.trim()}.*`, 'i')
 const searchUsers = async(name) =>
 {
@@ -386,5 +419,7 @@ module.exports={
   deleteUserGroup,
   updateUserEmailVerification,
   updateUserKey,
+  updateUserSession,
+  updateUserOnlineStatus,
   searchUsers
 }

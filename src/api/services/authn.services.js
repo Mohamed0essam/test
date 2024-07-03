@@ -8,7 +8,7 @@ const refreshSessionToken = async(user, authnToken) =>
   try
   {
   // Frontend can redirect the user to refresh the session token every 28 minutes or so before its actual expiration for better user experience.
-  // Frontend will send the old session token which is 2 minutes away from expiring here and the authentication token.
+  // Frontend wilauthnRouterl send the old session token which is 2 minutes away from expiring here and the authentication token.
   
   const validToken = await validation.keyValidation(user._id, authnToken)
 

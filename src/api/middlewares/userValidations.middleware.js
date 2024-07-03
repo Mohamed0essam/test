@@ -27,8 +27,12 @@ const userRole = async(userID, groupID) =>
 {
     try
     {
-        const group = await Group.findById(groupID, {owner:1, joinedUsers:1, privacy:1})
-        const array = group.joinedUsers || ["empty"]
+        // {owner:1, joinedUsers:1, privacy:1}
+        const group = await Group.findById(groupID)
+        let array = null
+        if (group.joinedUsers)
+            array = group.joinedUsers
+
         if (userID == group.owner)
         {
             console.log("status: 200")

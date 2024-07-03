@@ -83,12 +83,12 @@ const updateUserPassword = ()=>{
 const updateUserData = async (req,res) =>{
     // update user data
     const userID = req.user.id;
-    const { firstName, lastName, gender, birthDate, phone, nationality, categoricalInterests, profilePhoto, firebaseID, firstLogin, profileVisibility } = req.body;
+    const { firstName, lastName, gender, birthDate, phone, nationality, categoricalInterests, profilePhoto, firebaseID, firstLogin, profileVisibility, isOnline} = req.body;
     let updatedUser = null
     if (await validation.phoneValidation(phone) === true)
     {
         updatedUser = await userServices.updateUser(userID, {firstName, lastName, gender, birthDate, 
-            phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility}, firebaseID);   
+            phone, nationality, categoricalInterests, profilePhoto, firstLogin, profileVisibility, isOnline}, firebaseID);   
     }
     else
     {

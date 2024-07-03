@@ -12,8 +12,8 @@ const validation = require('../middlewares/userValidations.middleware')
 const  createGroup = async (req, res) => 
 {
     const userID = req.user.id
-    const {name, description, startDate, endDate, privacy, groupPhoto} = req.body;
-    const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto});
+    const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
+    const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories});
     if (!newGroup)
         return res.status(400).json("Invalid data").end()
     

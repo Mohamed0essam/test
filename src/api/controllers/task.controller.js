@@ -7,8 +7,8 @@ const groupServices = require('../services/group.services')
 const createTask = async(req, res) => 
 {
     const userID = req.user.id
-    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles} = req.body
-    const newTask = await taskServices.createTask(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles)
+    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle} = req.body
+    const newTask = await taskServices.createTask(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle)
     if (!newTask) 
         return res.status(400).json("Invalid data").end()
     await groupServices.updateGroup(groupID, {$push: {tasks: newTask._id}})

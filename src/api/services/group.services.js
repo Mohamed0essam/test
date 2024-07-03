@@ -5,11 +5,11 @@ const taskServices = require('../services/task.services')
 
 
 // Create group
-const  createGroup = async(userID, { name, description, startAt, deadline, privacy, groupPhoto}) => 
+const  createGroup = async(userID, {name, description, startAt, deadline, privacy, groupPhoto, attachedFiles, categories}) => 
 {
     try 
     {
-        const group = new Group({name, owner:userID, description, startAt, deadline, privacy, groupPhoto})
+        const group = new Group({name, owner:userID, description, startAt, deadline, privacy, groupPhoto, attachedFiles, categories})
         group.joinedUsers= [userID] // Add the creator of the group to joined users list
         const newGroup = await group.save()
 
@@ -139,16 +139,16 @@ const joinGroup = async(userID, groupID) =>
 // To leave a group
 const leaveGroup = async(userID, groupID) =>
 {
-    let group = await Group.find({_id:groupID, joinedUsers:{$in:userID}}, {name:1, owner:1})
+    const group = await Group.findById(groupID, {_id: 0, name: 1, joinedUsers: 1, owner: 1})
     
     if (!group == "")
     {
         if (userID == group.owner)
             return false
-        else
+        else if (group.joinedUsers.includes(userID))
         {
-            group = await Group.findByIdAndUpdate(groupID, {$pull: {joinedUsers: userID}})
-            if (!group)
+            const result = await Group.findByIdAndUpdate(groupID, {$pull: {joinedUsers: userID}})
+            if (!result)
                 return false
             return true
         }

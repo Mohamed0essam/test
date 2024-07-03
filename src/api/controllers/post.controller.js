@@ -5,7 +5,8 @@ const postServices = require('../services/post.services')
 // Create post
 const createPost = async(req, res) =>
 {
-    const {userID, groupID, taskID, content, attachedMedia} = req.body
+    const userID = req.user.id
+    const {groupID, taskID, content, attachedMedia} = req.body
     const newPost = await postServices.createPost({userID, groupID, taskID, content, attachedMedia})
     if (!newPost)
         return res.status(400).json("Invalid data").end()
@@ -17,6 +18,7 @@ const createPost = async(req, res) =>
 // Read all posts
 const readAllPosts = async(req, res) =>
 {
+    // const userID = req.user.id  // Use it to see if the current user liked any of the sent posts
     const posts = await postServices.readAllPosts()
     if (!posts)
         return res.status(404).json('Could not fetch all posts').end()
@@ -31,18 +33,19 @@ const readPost = async(req, res) =>
     const postID = req.params
     const foundPost = await postServices.readPost(postID)
     if (!foundPost)
-        return res.status(404).json('Post not found').end()
+        return res.status(404).json('Not found').end()
     
-    return res.status(200).json(foundPost).end()
+    return res.status(200).json({Post: foundPost}).end()
 }
 
 
 // Update post
 const updatePost = async(req, res) =>
 {
+    const userID = req.user.id
     const postID = req.params
-    const {groupID, taskID, content, attachedMedia} = req.body
-    const updatedPost = await postServices.updatePost(postID, groupID, taskID, {content, attachedMedia})
+    const {content, attachedMedia} = req.body
+    const updatedPost = await postServices.updatePost(userID, postID, {content, attachedMedia})
     if (!updatedPost)
         return res.status(404).json('Could not update post').end()
     
@@ -50,11 +53,40 @@ const updatePost = async(req, res) =>
 }
 
 
+const likePost = async(req, res) =>
+{
+    const userID = req.user.id
+    const postID = req.body.post
+    const likedPost = await postServices.likePost(postID, userID)
+    
+    if (!likedPost)
+        return res.status(404).json("Not found")
+    
+    return res.status(200).json("Liked successfully")
+}
+
+
+const unlikePost = async(req, res) =>
+{
+    const userID = req.user.id
+    const postID = req.body.post
+    const unlikedPost = await postServices.unlikePost(postID, userID)
+
+    if (!unlikedPost)
+        return res.status(404).json("Not found")
+
+    return res.status(200).json("Unliked successfully")
+}
+
+
 // Delete post
 const deletePost = async(req, res) => 
 {
+    const userID = req.user.id
     const postID = req.params
-    const deleteCount = await postServices.deletePost(postID)
+
+    const deleteCount = await postServices.deletePost(userID, postID)
+
     if (deleteCount <= 0)
         return res.status(404).json('Could not delete post').end()
         
@@ -68,6 +100,32 @@ const searchPosts = async(req, res) =>
     
 }
 
+// get recommendation posts 
+
+const getRecommendedPosts = async (req, res) => {
+    // const userID = req.user.id 
+
+    const userID = req.body.userID;
+   
+
+    try {
+        
+        console.log(`controller ${userID}`)
+    
+      const postIDs = await postServices.getPostsData(userID);
+      
+      const posts = [];
+      for (let i = 0; i < Math.min(20, postIDs.length); i++) {
+        const post = await postServices.readPost(postIDs[i]);
+        posts.push(post);
+      }
+  
+      return res.status(200).json(posts);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 
 module.exports = 
 {
@@ -75,6 +133,9 @@ module.exports =
     readAllPosts,
     readPost,
     updatePost,
+    likePost,
+    unlikePost,
     deletePost,
-    searchPosts
+    searchPosts,
+    getRecommendedPosts
 }

@@ -99,7 +99,8 @@ const GroupSchema = new mongoose.Schema
         [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "User"
+                ref: "User",
+                unique: true
             }
         ],
 

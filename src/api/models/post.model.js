@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const CommentSchema = new mongoose.Schema
 (
     {
@@ -11,25 +10,11 @@ const CommentSchema = new mongoose.Schema
         },
         content: 
         {
-            type: String
-        }, // not 
-        attachedMedia: 
-        [
-            {
-                type: String
-            }
-        ], // url 
-        whoLiked: 
-        [
-            {
-                type:mongoose.Schema.Types.ObjectId, ref:"User"
-            }
-        ],  
+            type: String, required: true
+        }
     }
 );
 
-
-/////////7x
 const PostSchema = new mongoose.Schema
 (
     {
@@ -46,7 +31,7 @@ const PostSchema = new mongoose.Schema
         task: 
         {
             type:mongoose.Schema.Types.ObjectId, ref:"Task", 
-            required:true
+            required:true,
         },
         content: 
         {
@@ -57,17 +42,18 @@ const PostSchema = new mongoose.Schema
             {
                 type: String
             }
-        ], //URL 
-        whoLiked: 
+        ],
+        likes: 
         [
             {
-                type:mongoose.Schema.Types.ObjectId, ref:"User"
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
             }
         ],
         comments: 
         [
             {
-                type: CommentSchema
+                type: CommentSchema, unique: false, required: false
             }
         ]
 },
@@ -76,6 +62,4 @@ const PostSchema = new mongoose.Schema
     }
 )
 
-const PostModel = mongoose.model("Post",PostSchema);
-
-module.exports = PostModel;
+module.exports = mongoose.model("Post",PostSchema);

@@ -7,7 +7,7 @@ const { startOfDay, endOfDay } = require('date-fns');
 
 
 // Create a single task in a group.
-const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles) => 
+const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle) => 
 {
     console.log(taskName)
     try 
@@ -22,7 +22,10 @@ const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate
                 isHabit,
                 startDate, 
                 endDate, 
-                attachedFiles
+                attachedFiles,
+                repetitions,
+                interval,
+                intervalCycle
             }
         )
         const newTask = await tempTask.save() 

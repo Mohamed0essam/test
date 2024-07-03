@@ -37,7 +37,7 @@ app.use('/api/v1/post', postRouter)
 
 const start = async ()=> {
     try {
-       await connectDB("mongodb+srv://talal16046:pFLzDsPvvgX5U@cluster0.uak9mfj.mongodb.net/")
+       await connectDB(process.env.MONGO_URI)
        console.log(" connected to database");
         app.listen(3000, ()=> {console.log(" server is running!")});
     } catch(err) {
