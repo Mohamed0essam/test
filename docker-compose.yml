@@ -18,7 +18,7 @@ services:
    - 3000:3000
   environment: 
    PORT: 3000
-   MONGO_URI: "mongodb+srv://talal16046:pFLzDsPvvgX5U@cluster0.uak9mfj.mongodb.net/"
+   MONGO_URI: "mongodb+srv://Myrick:akXiUD5l6otO9qIm@dm-cluster1.kx9iyj3.mongodb.net/?retryWrites=true&w=majority&appName=DM-Cluster1"
    sessionKey: 'b751112cacd16b0e0388aa7b0231514105b661682e2f6717cad3a3b49bbe399d571a732040b6a34a599a37b5886174fe58bab03a0154388c69dc86043429205a'
    sessionExpiration: 30m
    authnKey: 'd8daa7673293fd4a2da947afd8096efb4c976fb615dbc83d9a2f3458fa6cd57504ae9f5d113c89ec391d148a4e88a89e0a11889ac0c63ef0e75cba1cca6321f7'
