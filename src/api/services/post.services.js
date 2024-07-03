@@ -119,14 +119,14 @@ const readPost = async(userID, postID) =>
         const foundPost = 
         {
             "postID": post._id,
-            "postOwner": post.owner,
+            "owner": post.owner,
             "username": postOwner.username,
             "firstName": postOwner.firstName,
             "lastName": postOwner.lastName,
             "profilePhoto": postOwner.profilePhoto,
             "isPostOwner": post.owner === userID,
             "isLiked": post.likes.includes(userID),
-            "postGroup": postGroup.name,
+            "groupName": postGroup.name,
             "createdAt": post.createdAt,
             "content": post.content,
             "attachedMedia": post.attachedMedia,
