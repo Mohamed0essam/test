@@ -71,6 +71,7 @@ const readAllPosts = async(userID) =>
             (
                 {
                     "postID": post._id,
+                    "owner": post.owner,
                     "username": user.username,
                     "firstName": user.firstName,
                     "lastName": user.lastName,
