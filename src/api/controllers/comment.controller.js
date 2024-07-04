@@ -31,8 +31,40 @@ const createReply = async(req, res) =>
 
 
 
+// Delete Commen
+const deleteComment = async(req, res) =>
+{
+    const userID = req.user.id
+    const commentID = req.params
+    const postID = req.body.postID
+
+    const deletedComment = await commentServices.deleteComment(userID, postID, commentID)
+    if (!deletedComment)
+        return res.status(400).json("Something went wrong")
+    return res.status(200).json("Comment deleted successfully")
+}
+
+
+
+// Delete Reply
+const deleteReply = async(req, res) =>
+{
+    const userID = req.user.id
+    const postID = req.body.postID
+    const commentID = req.params
+    const replyIndex = req.body.replyIndex
+
+    const deletedReply = await commentServices.deleteReply(userID, postID, commentID, replyIndex)
+    if (!deletedReply)
+        return res.status(400).json("Something went wrong")
+    return res.status(200).json("Reply deleted successfully")
+}
+
+
 module.exports = 
 {
     createComment,
-    createReply
+    createReply,
+    deleteComment,
+    deleteReply
 }

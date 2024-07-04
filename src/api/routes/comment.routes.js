@@ -1,11 +1,17 @@
 const express = require('express')
 const router = express.Router()
 const commentController = require('../controllers/comment.controller')
-const authnMidlleware  = require ('../middlewares/authentication.middle')
+const authnMiddleware  = require ('../middlewares/authentication.middle')
 
 
-router.route('/create').post(authnMidlleware.checkSession, commentController.createComment)
-router.route('/create-reply').post(authnMidlleware.checkSession, commentController.createReply)
+// Create
+router.route('/create').post(authnMiddleware.checkSession, commentController.createComment)
+router.route('/create-reply').post(authnMiddleware.checkSession, commentController.createReply)
+
+
+// Delete
+router.route('/delete/:_id').delete(authnMiddleware.checkSession, commentController.deleteComment)
+router.route('/delete-reply/:_id').delete(authnMiddleware.checkSession, commentController.deleteReply)
 
 
 module.exports = router
