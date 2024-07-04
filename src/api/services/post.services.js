@@ -101,6 +101,7 @@ const readPost = async(userID, postID) =>
     try 
     {
         const post = await Post.findById(postID, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, attachedMedia: 1, likes: 1, comments: 1})
+        console.log(post)
         if (!post)
             return false
 

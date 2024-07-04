@@ -117,18 +117,18 @@ const readTodayTasks = async(userID) =>
 
         const todayTasks = await Task.find({group: {$in: userGroups}, endDate: {$gte: start, $lte:end}}, {_id:1, userCompleted:1, group:1})
         
-        for (let taskObj in todayTasks)
+        for (let task of todayTasks)
         {
-            idArr.push(todayTasks[taskObj]._id)
+            idArr.push(task)
         }
 
         let groupPictures = []
-        for (id in idArr)
-            {
-                let groupPicture = await Group.find({tasks:idArr[id]}, {_id:0, groupPhoto:1})
-                if (groupPicture.groupPhoto)
-                    groupPictures.push(groupPicture[0].groupPhoto)
-            }
+        let groupPic
+        for (let taskID of todayTasks)
+        {
+            groupPic = await Group.findOne(taskID.group, {_id: 0, groupPhoto: 1})
+            groupPictures.push(groupPic)
+        }
 
         let completeTasks = []
         let incompleteTasks = []

@@ -125,7 +125,12 @@ const deleteComment = async(userID, postID, commentID) =>
             return false
 
         const deletedComment = await Comment.findByIdAndDelete(commentID)
-        return deletedComment
+        if (!deletedComment)
+            return false
+
+        const deletedFromPost = await Post.findByIdAndUpdate(postID, {$pullAll: {comments: [commentID]}})
+        console.log(deletedFromPost)
+        return deletedFromPost
     }
     catch (err)
     {
