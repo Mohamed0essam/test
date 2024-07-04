@@ -82,7 +82,7 @@ const readComment = async(userID, postID, commentID) =>
                 {
                     "replyOwner": reply.owner,
                     "username": replyOwner.username,
-                    "fitstName": replyOwner.firstName,
+                    "firstName": replyOwner.firstName,
                     "lastName": replyOwner.lastName,
                     "profilePhoto": replyOwner.profilePhoto,
                     "isReplyOwner": reply.owner === userID,

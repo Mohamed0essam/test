@@ -126,7 +126,8 @@ const readTodayTasks = async(userID) =>
         for (id in idArr)
             {
                 let groupPicture = await Group.find({tasks:idArr[id]}, {_id:0, groupPhoto:1})
-                groupPictures.push(groupPicture[0].groupPhoto)
+                if (groupPicture.groupPhoto)
+                    groupPictures.push(groupPicture[0].groupPhoto)
             }
 
         let completeTasks = []
