@@ -1,15 +1,6 @@
 const mongoose = require('mongoose')
 
 
-//configration
-const moderatorConfigSchema = new mongoose.Schema
-(
-    {
-
-    }
-);
-
-
 const GroupSchema = new mongoose.Schema
 (
     {    
@@ -30,14 +21,16 @@ const GroupSchema = new mongoose.Schema
             type: String
         },
 
-        // categories: 
-        // [{
-        //     // type should be a list of category names from the Category model
-        //     // Will use category model to accomodate user-added categories
-        //     type: String,
-        //     required: true,
-        //     enum: ["cat1", "cat2", "cat3", "cat4", "cat5", "cat6"]
-        // }],
+        categories:
+        [ 
+            {
+                // type should be a list of category names from the Category model
+                // Will use category model to accomodate user-added categories
+                type: String,
+                required: true,
+                enum: ["Community & Volunteering", "Entertainment", "Events", "Finance", "Health & Fitness", "Hobbies & Interests", "Home & Living", "Mental Health & Self-Care", "Personal Development", "Social & Relationships", "Travel & Leisure", "Work", "Miscellaneous"]
+            }
+        ],  
         
         // Used to get tasks to prevent overloading the server with too many requests at once when searching through Task.
         tasks: 
@@ -89,11 +82,6 @@ const GroupSchema = new mongoose.Schema
                 ref: "User"
             }
         ],
-
-        moderatorConfig: 
-        {
-            type: moderatorConfigSchema
-        },
 
         joinedUsers: 
         [

@@ -5,11 +5,24 @@ const taskServices = require('../services/task.services')
 
 
 // Create group
-const  createGroup = async(userID, {name, description, startAt, deadline, privacy, groupPhoto, attachedFiles, categories}) => 
+const  createGroup = async(userID, {name, description, startAt, deadline, privacy, groupPhoto, filteredFiles, filteredCategories}) => 
 {
     try 
     {
-        const group = new Group({name, owner:userID, description, startAt, deadline, privacy, groupPhoto, attachedFiles, categories})
+        const group = new Group
+        (
+            {
+                name: name,
+                owner: userID, 
+                description: description, 
+                startAt: startAt, 
+                endDate: deadline, 
+                privacy: privacy, 
+                groupPhoto: groupPhoto, 
+                attachedFiles: filteredFiles, 
+                categories: filteredCategories
+            }
+        )
         group.joinedUsers= [userID] // Add the creator of the group to joined users list
         const newGroup = await group.save()
 
@@ -46,7 +59,7 @@ const readGroup = async(groupID, userID) =>
     {
         let participants = 0
         const joinedParticipants = await Group.findById(groupID, {joinedUsers:1})
-        const group = await Group.findById(groupID, {owner:1, name:1, groupPhoto:1, privacy:1, description:1, createdAt:1, endDate:1})
+        const group = await Group.findById(groupID, {owner:1, name:1, groupPhoto:1, privacy:1, description:1, createdAt:1, endDate:1, attachedFiles:1, categories: 1})
         const owner = await User.findById(group.owner, {firstName:1, lastName:1})
         const tasks = await taskServices.readGroupTasks(groupID, userID)
         for (let user in joinedParticipants.joinedUsers)
@@ -96,11 +109,23 @@ const readGroupParticipants = async(groupID) =>
 }
 
 // Update group
-const updateGroup = async(groupID, updates) => 
+const updateGroup = async(groupID, {name, description, groupPhoto, endDate, filteredFiles, privacy, filteredCategories}) => 
 {
     try 
     {
-        const group = await Group.findByIdAndUpdate(groupID, updates)
+        const group = await Group.findByIdAndUpdate
+        (
+            groupID, 
+            {
+                name: name, 
+                description: description, 
+                groupPhoto: groupPhoto, 
+                endDate: endDate, 
+                attachedFiles: filteredFiles, 
+                privacy: privacy, 
+                categories: filteredCategories
+            }
+        )
         const updatedGroup = readGroup(groupID)
         return updatedGroup
     } 

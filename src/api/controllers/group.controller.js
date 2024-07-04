@@ -13,7 +13,18 @@ const  createGroup = async (req, res) =>
 {
     const userID = req.user.id
     const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
-    const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories});
+
+    let filteredCategories = categories.filter(item => {
+        // Convert item to boolean and check if it's truthy
+        return item && typeof item === 'string' && item.trim() !== '';
+    });
+
+    let filteredFiles = attachedFiles.filter(item => {
+        // Convert item to boolean and check if it's truthy
+        return item && typeof item === 'string' && item.trim() !== '';
+    });
+
+    const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, filteredFiles, filteredCategories});
     if (!newGroup)
         return res.status(400).json("Invalid data").end()
     
@@ -76,8 +87,8 @@ const readGroupParticipants = async(req, res) =>
 const updateGroup = async(req, res) => 
 {
     const groupID = req.params
-    const {name, description, groupPhoto, endDate, attachedFiles, privacy, moderator, moderatorConfig} = req.body
-    const updatedGroup = await  groupServices.updateGroup(groupID , {name, description, groupPhoto, endDate, attachedFiles, privacy, moderator, moderatorConfig})
+    const {name, description, groupPhoto, endDate, attachedFiles, privacy, categories} = req.body
+    const updatedGroup = await  groupServices.updateGroup(groupID , {name, description, groupPhoto, endDate, attachedFiles, privacy, categories})
     if (!updatedGroup)
         return res.status(400).json("No such group").end()
         
