@@ -25,7 +25,7 @@ const createComment = async(userID, postID, content) =>
     
         if (savedComment)
         {
-            const post = await Post.findByIdAndUpdate(postID, {comments: savedComment})
+            const post = await Post.findByIdAndUpdate(postID, {$push :{comments: savedComment}})
             if (!post)
                 return false
         }
