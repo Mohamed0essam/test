@@ -120,12 +120,18 @@ const deleteComment = async(userID, postID, commentID) =>
 {
     try
     {
+        const post = await Post.findById(postID, {_id: 0, owner: 1})
         const comment = await Comment.findById(commentID, {_id: 0, owner:1, post: 1})
-        if (comment.post != postID || comment.owner != userID)
+        if (comment.post != postID)
             return false
 
-        const deletedComment = await Comment.findByIdAndDelete(commentID)
-        if (!deletedComment)
+        if (comment.owner == userID || post.owner == userID)
+        {
+            const deletedComment = await Comment.findByIdAndDelete(commentID)
+            if (!deletedComment)
+                return false
+        }
+        else
             return false
 
         const deletedFromPost = await Post.findByIdAndUpdate(postID, {$pullAll: {comments: [commentID]}})
@@ -144,16 +150,18 @@ const deleteReply = async(userID, postID, commentID, replyIndex) =>
 {
     try
     {
+        const post = await Post.findById(postID, {_id: 0, owner: 1})
         const comment = await Comment.findById(commentID, {_id: 0, owner: 1, post: 1, replies: 1})
         
-        
-        if (comment.replies.length == 0 || comment.post != postID || comment.replies[replyIndex].owner != userID)
+        if (comment.replies.length == 0 || comment.post != postID || replyIndex >= comment.replies.length)
             return false
 
-        if (replyIndex >= comment.replies.length)
+        let removedReply = false
+        if (comment.replies[replyIndex].owner == userID || post.owner == userID)
+            removedReply = await Comment.findByIdAndUpdate(commentID, {$pull: {replies: comment.replies[replyIndex]}})
+        else
             return false
 
-        const removedReply = await Comment.findByIdAndUpdate(commentID, {$pull: {replies: comment.replies[replyIndex]}})
         return removedReply
         
     }
