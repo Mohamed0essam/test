@@ -45,7 +45,7 @@ const createReply = async(userID, commentID, content) =>
 {
     try
     {
-        let comment = await Comment.findByIdAndUpdate(commentID, {replies: {owner: userID, content: content}})
+        let comment = await Comment.findByIdAndUpdate(commentID, {$push: {replies: {owner: userID, content: content}}})
         if (!comment)
             return false
         
