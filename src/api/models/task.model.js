@@ -55,19 +55,19 @@ const TaskSchema = new mongoose.Schema
     },
     repetitions:
     {
-      type: Number, required: true, default: 0   // Make sure that any input from the user smaller than 1 is treated as infinity.
+      type: Number, required: true, default: -1   // Make sure that any input from the user smaller than 1 is treated as infinity.
     },
     interval:
     {
       type: String, enum: ["daily", "weekly", "monthly", "yearly"], required: true, default: "daily"
     },
-    intervalCycle:
-    {
-      type: Number, required: true, default: 1
-    },
     habitCounter:
     {
       type: Number, required: true, default: 0
+    },
+    habitScore:
+    {
+      type: Number, required: true, default: 1
     },
     startDate: 
     {
@@ -81,13 +81,6 @@ const TaskSchema = new mongoose.Schema
       type: Date,
       required: true,
       default: Date.now()
-    },
-   // it's a counter, incresed with each user do the task
-    completeness: 
-    {
-      type: Number,
-      default: 0,
-      required: true,
     },
     //  for more facilities 
     attachedFiles: 

@@ -9,7 +9,7 @@ const register = async (req, res)=>{
  
 // try  to create a new user with this information
 
-    const {email,username, password} =  req.body;
+    const {email,username, password, deviceToken} =  req.body;
     //check  email  Exists
     const userEmailExists = await userService.findUserByEmail(email);
     const usernameExists = await userService.findUserByUsername(username);
@@ -30,7 +30,10 @@ const register = async (req, res)=>{
     // console.log('HashedPassword is'+ HashedPassword)
 
     const newUser =await userService.createUser({
-        email, username, password: HashedPassword
+        email,
+        username,
+        password: HashedPassword,
+        $push: {deviceToken: deviceToken}
     });
 
     //send res and msg user have been created 

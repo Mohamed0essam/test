@@ -7,11 +7,31 @@ const groupServices = require('../services/group.services')
 const createTask = async(req, res) => 
 {
     const userID = req.user.id
-    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle} = req.body
-    const newTask = await taskServices.createTask(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle)
+    let {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval} = req.body
+    let filteredFiles = ""
+    
+    if (!startDate)
+        startDate = new Date()
+    else
+        startDate = new Date(startDate)
+
+    startDate.setHours(3, 0, 0, 0)
+    console.log(startDate)
+
+    endDate = new Date(endDate)
+    endDate.setHours(2, 59, 59, 999)
+
+    if (attachedFiles)
+    {
+        filteredFiles = attachedFiles.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        });
+    }
+
+    const newTask = await taskServices.createTask(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, filteredFiles, repetitions, interval)
     if (!newTask) 
         return res.status(400).json("Invalid data").end()
-    await groupServices.updateGroup(groupID, {$push: {tasks: newTask._id}})
     return res.status(200).json({msg: "Task created successfully", task: newTask}).end()
 }
 
@@ -50,9 +70,25 @@ const readTodayTasks = async(req, res) =>
 // Update task
 const updateTask = async(req, res) => 
 {
+    const userID = req.user.id
     const taskID = req.params._id
-    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles} = req.body
-    const updatedTask = await taskServices.updateTask(taskID, {taskName, taskDesc, isHabit, startDate, endDate, attachedFiles})
+    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, interval, repetitions} = req.body
+
+    if (!startDate)
+    {
+        startDate = new Date()
+        startDate.setHours(0, 0, 0, 0)
+    }
+    
+    if (attachedFiles)
+    {
+        filteredFiles = attachedFiles.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        });
+    }
+
+    const updatedTask = await taskServices.updateTask(userID, groupID, taskID, {taskName, taskDesc, isHabit, startDate, endDate, filteredFiles, interval, repetitions})
     if (!updatedTask) 
         return res.status(400).json('Invalid data').end()
     

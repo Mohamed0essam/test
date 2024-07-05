@@ -6,29 +6,99 @@ const Group = require('../models/group.model')
 const { startOfDay, endOfDay } = require('date-fns');
 
 
-// Create a single task in a group.
-const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval, intervalCycle) => 
+function habitScorer(repetitions, startDate, endDate, interval)
 {
-    console.log(taskName)
+    let habitScore = 1
+
+    if (repetitions > 0)
+    {
+        startDate = new Date(startDate)
+        endDate = new Date(endDate)
+
+        const dayDiff = Math.floor((endDate - startDate)/(1000 * 60 * 60 * 24))
+        
+        if (interval === "daily")
+        {
+            if (dayDiff < 1)
+                habitScore = repetitions
+            else
+                habitScore = dayDiff * repetitions
+        }
+        else if (interval === "weekly")
+        {
+            if (dayDiff < 7)
+                habitScore = repetitions
+            else
+                habitScore = (dayDiff / 7) * repetitions
+        }
+        else if (interval === "monthly")
+        {
+            if (dayDiff < 30)
+                habitScore = repetitions
+            else
+                habitScore = (dayDiff / 30) * repetitions
+        }
+        else if (interval === "yearly")
+        {
+            if (dayDiff < 365)
+                habitScore = repetitions
+            else
+                habitScore = (dayDiff / 365) * repetitions
+        }
+    }
+    // console.log(typeof(habitScore))
+    return habitScore
+}
+
+
+
+// Create a single task in a group.
+const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate, endDate, filteredFiles, repetitions, interval) => 
+{
     try 
     {
-        const tempTask = new Task
-        (
-            {
-                assigner: userID,
-                group: groupID, 
-                name:taskName, 
-                description:taskDesc, 
-                isHabit,
-                startDate, 
-                endDate, 
-                attachedFiles,
-                repetitions,
-                interval,
-                intervalCycle
-            }
-        )
+        let tempTask
+        if (isHabit === true)
+        {
+            const habitScore = habitScorer(repetitions, startDate, endDate, interval)
+
+            tempTask = new Task
+            (
+                {
+                    assigner: userID,
+                    group: groupID, 
+                    name: taskName, 
+                    description: taskDesc, 
+                    isHabit: true,
+                    startDate: startDate, 
+                    endDate: endDate, 
+                    attachedFiles: filteredFiles,
+                    repetitions: repetitions,
+                    interval: interval,
+                    habitScore: habitScore
+                }
+            )
+        }
+        else
+        {
+            tempTask = new Task
+            (
+                {
+                    assigner: userID,
+                    group: groupID, 
+                    name: taskName, 
+                    description: taskDesc, 
+                    isHabit: false,
+                    startDate: startDate, 
+                    endDate: endDate, 
+                    attachedFiles: filteredFiles,
+                }
+            )
+        }
+
         const newTask = await tempTask.save() 
+        if (newTask)
+            await Group.findByIdAndUpdate(groupID, {tasks: newTask._id})
         return newTask
     } 
     catch (err) 
@@ -159,23 +229,52 @@ const readTodayTasks = async(userID) =>
 
 
 // Update a task in a group using the task's unique ID.
-const updateTask = async(taskID, updates) => 
+const updateTask = async(userID, groupID, taskID, updates) => 
 {
     try 
     {
-        const task = await Task.findByIdAndUpdate
-        (
-            taskID, 
-            {
-                name: updates.taskName,
-                description: updates.taskDesc,
-                isHabit: updates.isHabit,
-                startDate: updates.startDate,
-                endDate: updates.endDate,
-                attachedFiles: updates.attachedFiles
-            }
-        )
+        let task = await Task.findById(taskID)
+
+        if (task.group != groupID || task.assigner != userID || !task)
+            return false
+
+        if (updates.isHabit === true)
+        {
+            const habitScore = habitScorer(updates.repetitions, updates.startDate, updates.endDate, updates.interval)
+            
+            task = await Task.findByIdAndUpdate
+            (
+                taskID,
+                { 
+                    name: updates.taskName, 
+                    description: updates.taskDesc,
+                    startDate: updates.startDate, 
+                    endDate: updates.endDate, 
+                    isHabit: true,
+                    attachedFiles: updates.filteredFiles,
+                    repetitions: updates.repetitions,
+                    interval: updates.interval,
+                    habitScore: habitScore
+                }
+            )
+        }
+        else
+        {
+            task = await Task.findByIdAndUpdate
+            (
+                taskID, 
+                {
+                    name: updates.taskName, 
+                    description: updates.taskDesc,
+                    startDate: updates.startDate, 
+                    endDate: updates.endDate, 
+                    isHabit: false,
+                    attachedFiles: updates.filteredFiles,
+                }
+            )
+        }
         const updatedTask = await Task.findById(taskID)     // Can use readTask() instead
+        console.log(updatedTask)
         return updatedTask
     } 
     catch (err) 

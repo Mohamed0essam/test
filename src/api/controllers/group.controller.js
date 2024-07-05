@@ -88,7 +88,27 @@ const updateGroup = async(req, res) =>
 {
     const groupID = req.params
     const {name, description, groupPhoto, endDate, attachedFiles, privacy, categories} = req.body
-    const updatedGroup = await  groupServices.updateGroup(groupID , {name, description, groupPhoto, endDate, attachedFiles, privacy, categories})
+    let filteredCategories = "", filteredFiles = ""
+    
+    if (categories)
+    {
+        filteredCategories = categories.filter(item => 
+        {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        });
+    }
+
+    if (attachedFiles)
+    {
+        filteredFiles = attachedFiles.filter(item => 
+        {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        });
+    }
+
+    const updatedGroup = await  groupServices.updateGroup(groupID , {name, description, groupPhoto, endDate, filteredFiles, privacy, filteredCategories})
     if (!updatedGroup)
         return res.status(400).json("No such group").end()
         

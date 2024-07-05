@@ -28,7 +28,8 @@ const GroupSchema = new mongoose.Schema
                 // Will use category model to accomodate user-added categories
                 type: String,
                 required: true,
-                enum: ["Community & Volunteering", "Entertainment", "Events", "Finance", "Health & Fitness", "Hobbies & Interests", "Home & Living", "Mental Health & Self-Care", "Personal Development", "Social & Relationships", "Travel & Leisure", "Work", "Miscellaneous"]
+                enum: ["Community & Volunteering", "Entertainment", "Events", "Finance", "Health & Fitness", "Hobbies & Interests", "Home & Living", "Mental Health & Self-Care", "Personal Development", "Social & Relationships", "Travel & Leisure", "Work", "Miscellaneous"],
+                default: "Miscellaneous"
             }
         ],  
         
@@ -91,6 +92,13 @@ const GroupSchema = new mongoose.Schema
                 unique: true
             }
         ],
+
+        points:
+        {
+            type: Number,
+            required: true,
+            default: 0
+        }
 
     },
     {
