@@ -80,6 +80,19 @@ const unlikePost = async(req, res) =>
 }
 
 
+// Report Post
+const reportPost = async(req, res) =>
+{
+    const userID = req.user.id
+    const postID = req.params
+
+    const reportedPost = await postServices.reportPost(userID, postID)
+    if (!reportedPost)
+        return res.status(404).json("Not found")
+    return res.status(200).json("Reported successfully")
+}
+
+
 // Delete post
 const deletePost = async(req, res) => 
 {
@@ -136,6 +149,7 @@ module.exports =
     updatePost,
     likePost,
     unlikePost,
+    reportPost,
     deletePost,
     searchPosts,
     getRecommendedPosts

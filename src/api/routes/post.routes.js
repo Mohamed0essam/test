@@ -17,6 +17,7 @@ router.route('/read/:_id').get(authnMidlleware.checkSession, postController.read
 router.route('/update/:_id').patch(authnMidlleware.checkSession, postController.updatePost)
 router.route('/like-post').patch(authnMidlleware.checkSession, postController.likePost)
 router.route('/unlike-post').patch(authnMidlleware.checkSession, postController.unlikePost)
+router.route('/report-post/:_id').patch(authnMidlleware.checkSession, postController.reportPost)
 
 
 // Delete post

@@ -201,6 +201,30 @@ const unlikePost = async(postID, userID) =>
 }
 
 
+const reportPost = async(userID, postID) =>
+{
+    try
+    {
+        let post = await Post.findById(postID, {_id: 0, owner: 1})
+        console.log(post)
+        if (userID === post.owner)
+            return false
+
+        const reportedPost = await Post.findByIdAndUpdate(postID, {$push: {reports: userID}})
+
+        post = await Post.findById(postID, {_id: 0, reports: 1})
+        
+        if (post.reports.length >= 5)
+            await Post.findByIdAndDelete(postID)
+
+        return reportedPost
+    }
+    catch (err)
+    {
+        console.log('Report post error: ' + err)
+    }
+}
+
 
 // Delete post
 const deletePost = async(userID, postID) =>
@@ -237,6 +261,7 @@ const searchPosts = async(searchQuery) =>
 //     }
 
     const axios = require('axios');
+const { report } = require('../routes/post.routes')
 
 const getPostsData = async (userID) => {
   try {
@@ -266,6 +291,7 @@ module.exports =
     updatePost,
     likePost,
     unlikePost,
+    reportPost,
     deletePost,
     searchPosts,
     getPostsData

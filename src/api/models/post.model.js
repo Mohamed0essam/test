@@ -44,6 +44,12 @@ const PostSchema = new mongoose.Schema
             {
                 type:mongoose.Schema.Types.ObjectId, ref:"Comment", required: false
             }
+        ],
+        reports:
+        [
+            {
+                type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true
+            }
         ]
 },
     {
