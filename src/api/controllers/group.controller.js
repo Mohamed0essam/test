@@ -14,15 +14,23 @@ const  createGroup = async (req, res) =>
     const userID = req.user.id
     const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
 
-    let filteredCategories = categories.filter(item => {
-        // Convert item to boolean and check if it's truthy
-        return item && typeof item === 'string' && item.trim() !== '';
-    });
+    let filteredCategories
+    if (categories)
+    {
+        filteredCategories = categories.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        });
+    }
 
-    let filteredFiles = attachedFiles.filter(item => {
-        // Convert item to boolean and check if it's truthy
-        return item && typeof item === 'string' && item.trim() !== '';
-    });
+    let filteredFiles
+    if (attachedFiles)
+    {
+        filteredFiles = attachedFiles.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        })
+    }
 
     const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, filteredFiles, filteredCategories});
     if (!newGroup)
