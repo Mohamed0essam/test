@@ -98,7 +98,7 @@ const createTask = async(userID, groupID, taskName, taskDesc, isHabit, startDate
 
         const newTask = await tempTask.save() 
         if (newTask)
-            await Group.findByIdAndUpdate(groupID, {tasks: newTask._id})
+            await Group.findByIdAndUpdate(groupID, {$push: {tasks: newTask._id}})
         return newTask
     } 
     catch (err) 
