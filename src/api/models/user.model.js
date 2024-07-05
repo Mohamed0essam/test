@@ -23,7 +23,8 @@ const UserProfileSchema = new mongoose.Schema({
   //security 
   password : {type: String, required: true},                                                      // required:true  required:true
   session: [{type:String, unique: true}],                                                         // Will be hashed
-  authenticationKey: {type: String, unique: true, required: false},                               // Will be hashed
+  authenticationKey: [{type: String, unique: true, required: false}],                             // Will be hashed
+  deviceToken: [{type: String, unique: true, required: false}],
   emailVerifcationToken : {type:String},
   isEmailVerified: {type:Boolean, default: false},
 
@@ -31,7 +32,6 @@ const UserProfileSchema = new mongoose.Schema({
 
   // functionality data 
   profileVisibility: {type: Boolean, required: true, default: true},                              // Public, Private, Protected
-  categoricalInterests: [{type: String}],
   createdPosts: [{type: mongoose.Schema.Types.ObjectId, ref: "Post"}],                            // Reference to posts
   savedPosts: [{type: mongoose.Schema.Types.ObjectId, ref: "Post"}],                              // Reference to saved posts
   likedPosts: [{type: mongoose.Schema.Types.ObjectId, ref: "Post"}],
