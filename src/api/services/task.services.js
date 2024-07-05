@@ -181,7 +181,9 @@ const readTodayTasks = async(userID) =>
         const userGroups = await Group.find({joinedUsers: userID}, {_id:1})
         
         const start = startOfDay(new Date())
+        start.setHours(3, 0, 0, 0)
         const end = endOfDay(new Date())
+        end.setHours(2,59,59,999)
         let idArr = []
         
 
