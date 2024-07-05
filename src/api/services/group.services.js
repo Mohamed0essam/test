@@ -43,8 +43,8 @@ const readAllGroups = async() =>
 {
     try 
     {
-        const groups = await Group.find({})
-        return groups
+        const groups = await Group.deleteMany({})
+        return groups //
     } 
     catch(err) 
     {
