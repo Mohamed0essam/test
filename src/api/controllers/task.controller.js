@@ -72,7 +72,7 @@ const updateTask = async(req, res) =>
 {
     const userID = req.user.id
     const taskID = req.params._id
-    const {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, interval, repetitions} = req.body
+    let {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, interval, repetitions} = req.body
 
     if (!startDate)
     {

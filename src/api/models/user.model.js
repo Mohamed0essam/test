@@ -15,7 +15,7 @@ const UserProfileSchema = new mongoose.Schema({
   username: {type: String},                                                                       // disclude (no ' - ' no'/ \' no '<>'  ) //required
   gender: {type: String, enum: ["female", "male"]},
   birthDate: {type: String},
-  phone: {type: String, unique: true},                                                            // include num only and use country code.
+  phone: {type: String, default: "empty"},                                                            // include num only and use country code.
   nationality: {type: String},  
   firebaseID: {type: String},                                                                     // from Firebase
       
@@ -24,7 +24,7 @@ const UserProfileSchema = new mongoose.Schema({
   password : {type: String, required: true},                                                      // required:true  required:true
   session: {type:String, unique: true},                                                         // Will be hashed
   authenticationKey: {type: String, unique: true, required: false},                             // Will be hashed
-  deviceToken: {type: String, unique: true, required: false},
+  deviceToken: {type: String, required: false, default: "empty"},
   emailVerifcationToken : {type:String},
   isEmailVerified: {type:Boolean, default: false},
 
