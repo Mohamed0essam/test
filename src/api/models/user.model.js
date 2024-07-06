@@ -5,6 +5,7 @@ const UserProfileSchema = new mongoose.Schema({
   // user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   //displayName:  { type: String , required: true, match: /^[a-zA-Z\s]+$/, },   //fisrt & last  name 
 
+  // To get the server running
 
   profilePhoto: {type: String},                                                                   // URL or file path
   coverPhoto: {type: String},                                                                     // URL or file path
