@@ -237,6 +237,9 @@ const followUser = async(userID, profileID) =>
 {
   try
   {
+    if (userID === profileID)
+      return false
+    
     const userExists = await User.findById(profileID, {_id:1})
     if (!userExists)
       return false
