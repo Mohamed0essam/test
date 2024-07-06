@@ -55,3 +55,5 @@ jobs:
             echo $DOCKER_HUB_ACCESS_TOKEN | sudo docker login -u $DOCKER_HUB_USERNAME --password-stdin
             sudo docker-compose -f ~/myapp/docker-compose.yml pull
             sudo docker-compose -f ~/myapp/docker-compose.yml up -d
+            sudo docker image prune -a -f
+          
