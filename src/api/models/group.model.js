@@ -76,20 +76,11 @@ const GroupSchema = new mongoose.Schema
             default:"https://firebasestorage.googleapis.com/v0/b/flutter-8741f.appspot.com/o/Posts%2Fimage%201.png?alt=media&token=2bec8652-fe25-49a7-8f95-be04b641fe80"
         }, // URL or file path
 
-        moderator: 
-        [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User"
-            }
-        ],
-
         joinedUsers: 
         [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                unique: true
+                type: mongoose.Schema.Types.ObjectId, ref: "User",
+                required: true
             }
         ],
 

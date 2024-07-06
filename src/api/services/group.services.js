@@ -9,6 +9,7 @@ const  createGroup = async(userID, {name, description, startAt, deadline, privac
 {
     try 
     {
+        console.log(userID)
         const group = new Group
         (
             {
@@ -20,13 +21,15 @@ const  createGroup = async(userID, {name, description, startAt, deadline, privac
                 privacy: privacy, 
                 groupPhoto: groupPhoto, 
                 attachedFiles: filteredFiles, 
-                categories: filteredCategories
+                categories: filteredCategories,
+                joinedUsers: userID
             }
-        )
-        group.joinedUsers= [userID] // Add the creator of the group to joined users list
+        ) // Add the creator of the group to joined users list
         const newGroup = await group.save()
 
+        // const groupAfterUserAddition = await Group.findById(newGroup._id, {$push: {joinedUsers: userID}})
         const created = await User.findByIdAndUpdate(userID, {$push: {createdTodoLists: newGroup._id}})
+
         if (!created)
             return null
 
