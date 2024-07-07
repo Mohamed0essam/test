@@ -11,39 +11,33 @@ const validation = require('../middlewares/userValidations.middleware')
 // Create group
 const  createGroup = async (req, res) => 
 {
-    try
+    const userID = req.user.id
+    const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
+
+    let filteredCategories
+    if (categories)
     {
-        const userID = req.user.id
-        const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
-
-        let filteredCategories
-        if (categories)
-        {
-            filteredCategories = categories.filter(item => {
-                // Convert item to boolean and check if it's truthy
-                return item && typeof item === 'string' && item.trim() !== '';
-            });
-        }
-
-        let filteredFiles
-        if (attachedFiles)
-        {
-            filteredFiles = attachedFiles.filter(item => {
-                // Convert item to boolean and check if it's truthy
-                return item && typeof item === 'string' && item.trim() !== '';
-            })
-        }
-
-        const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, filteredFiles, filteredCategories});
-        if (!newGroup)
-            return res.status(400).json("Invalid data").end()
+        if (categories.includes(""))
+            categories.splice(categories.indexOf(""))
         
-        return res.status(200).json( { message: "Group created successfuly", group: newGroup }).end()
+        if (categories.includes(" "))
+            categories.splice(categories.indexOf(" "))
     }
-    catch (err)
+
+    let filteredFiles
+    if (attachedFiles)
     {
-        console.log("Error while creating group")
-    }  
+        filteredFiles = attachedFiles.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        })
+    }
+
+    const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, filteredFiles, filteredCategories});
+    if (!newGroup)
+        return res.status(400).json("Invalid data").end()
+    
+    return res.status(200).json( { message: "Group created successfuly", group: newGroup }).end()
 }
 
 // Read all groups
