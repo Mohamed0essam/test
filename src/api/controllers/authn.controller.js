@@ -120,9 +120,14 @@ const keyLogin = async(req, res) =>
 {
     const key = req.headers.key
     const decodedKey = await authServices.decodeAccessToken(key, process.env.authnKey)
+    if (!decodedKey)
+        return res.status(404).json("Not found")
     // console.log(decodedKey)
     
     const user = await userService.findUserById(decodedKey._id)
+    if (!user)
+        return res.status(404).json("Not found")
+
     await userService.updateUserOnlineStatus(decodedKey._id, true)
     const userWithoutPassword = user.toObject()
     delete userWithoutPassword.password
