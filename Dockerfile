@@ -3,4 +3,4 @@ WORKDIR /usr/src/app
 COPY package*.json  .
 RUN npm ci
 COPY .  .
-CMD ["pm2", "start", "src/index.js"]
+CMD ["pm2", "start", "/usr/src/app/src/index.js"]
