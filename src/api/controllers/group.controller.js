@@ -18,10 +18,12 @@ const  createGroup = async (req, res) =>
     let filteredCategories
     if (categories)
     {
-        filteredCategories = categories.filter(item => {
+        const preFilteredCategories = categories.filter(item => {
             // Convert item to boolean and check if it's truthy
             return item && typeof item === 'string' && item.trim() !== '';
         })
+
+        filteredCategories = [...new Set(preFilteredCategories)];
     }
     
     console.log(categories)
