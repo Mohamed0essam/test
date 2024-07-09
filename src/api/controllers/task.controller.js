@@ -9,6 +9,9 @@ const createTask = async(req, res) =>
     const userID = req.user.id
     let {groupID, taskName, taskDesc, isHabit, startDate, endDate, attachedFiles, repetitions, interval} = req.body
     let filteredFiles = ""
+
+    if (typeof repetitions !== 'number' || isNaN(value))
+        repetitions = -1
     
     if (!startDate)
         startDate = new Date()
