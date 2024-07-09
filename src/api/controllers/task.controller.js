@@ -18,6 +18,9 @@ const createTask = async(req, res) =>
     else
         startDate = new Date(startDate)
 
+    if (isHabit === true && !endDate)
+        endDate = new Date()
+
     startDate.setHours(3, 0, 0, 0)
     console.log(startDate)
 
@@ -82,6 +85,9 @@ const updateTask = async(req, res) =>
         startDate = new Date()
         startDate.setHours(0, 0, 0, 0)
     }
+
+    if (isHabit === true && !endDate)
+        endDate = new Date()
     
     if (attachedFiles)
     {
