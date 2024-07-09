@@ -12,18 +12,20 @@ const validation = require('../middlewares/userValidations.middleware')
 const  createGroup = async (req, res) => 
 {
     const userID = req.user.id
-    const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles, categories} = req.body;
-
+    const {name, description, startDate, endDate, privacy, groupPhoto, attachedFiles} = req.body;
+    const categories = req.body.categories
+    
     let filteredCategories
     if (categories)
     {
-        if (categories.includes(""))
-            categories.splice(categories.indexOf(""))
-        
-        if (categories.includes(" "))
-            categories.splice(categories.indexOf(" "))
+        filteredCategories = categories.filter(item => {
+            // Convert item to boolean and check if it's truthy
+            return item && typeof item === 'string' && item.trim() !== '';
+        })
     }
-
+    
+    console.log(categories)
+    
     let filteredFiles
     if (attachedFiles)
     {
@@ -32,14 +34,13 @@ const  createGroup = async (req, res) =>
             return item && typeof item === 'string' && item.trim() !== '';
         })
     }
-
+    
     const newGroup = await groupServices.createGroup(userID, {name, description, startDate, endDate, privacy, groupPhoto, filteredFiles, filteredCategories});
     if (!newGroup)
         return res.status(400).json("Invalid data").end()
-    
+        
     return res.status(200).json( { message: "Group created successfuly", group: newGroup }).end()
 }
-
 // Read all groups
 const readAllGroups = async(req, res) => 
 {
