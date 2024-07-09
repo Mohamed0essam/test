@@ -48,7 +48,7 @@ const PostSchema = new mongoose.Schema
         reports:
         [
             {
-                type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true
+                type: mongoose.Schema.Types.ObjectId, ref: "User"
             }
         ]
 },
