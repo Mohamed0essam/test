@@ -25,7 +25,7 @@ const UserProfileSchema = new mongoose.Schema({
   password : {type: String, required: true},                                                      // required:true  required:true
   session: {type:String, unique: true},                                                         // Will be hashed
   authenticationKey: {type: String, unique: true, required: false},                             // Will be hashed
-  deviceToken: {type: String, required: false, default: "empty"},
+  deviceToken: {type: String, required: false, default: ["empty"]},
   emailVerifcationToken : {type:String},
   isEmailVerified: {type:Boolean, default: false},
 
