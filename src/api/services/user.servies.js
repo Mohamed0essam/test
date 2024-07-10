@@ -340,7 +340,7 @@ const updateUserKey = async(userID, key) =>
 {
   try
   {
-    let updatedKey = await User.findByIdAndUpdate(userID, {authenticationKey: key})
+    let updatedKey = await User.findByIdAndUpdate(userID, {authenticationKey: key, deviceToken: []})
     updatedKey = await User.findById(userID, {_id:0, authenticationKey:1})
     return updatedKey.authenticationKey    
   }
