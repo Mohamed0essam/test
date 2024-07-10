@@ -111,37 +111,32 @@ const updateUserData = async (req,res) =>{
 
 // To save key in DB after manual login && to update key in case user wants to
 const updateUserKey = async(req, res) =>
-{
+{   
     let key = req.headers.key
     const userID = req.user.id
-
+    
     if (!userID)
         return res.status(404).json("Not Found").end()
-
-    if (!key)
+    
+    if (key)
     {
         const user = await userServices.findUserById(userID)
-        
         if (user)
         {
-            if (user.authenticationKey)
-                return res.status(201).json("Key already exists for this user")
+            if (user.authenticationKey != key)
+                return res.status(404).json("Not found")
+            
             key = await authServices.generateAccessToken(user, process.env.authnKey, process.env.authnExpiration)
             updatedKey = await userServices.updateUserKey(userID, key)
             if (updatedKey)
-                return res.status(200).json({msg:"Key updated successfully", key: updatedKey}).end()
-            else
+                return res.status(200).json({msg:"Key updated successfully", authnToken: updatedKey}).end()
+             else
                 return res.status(400).json("Something went wrong").end()
         }
     }
     else
-    {
-        if (await validation.keyValidation(userID, key))
-            return res.status(200).json("Key already exists for this user").end()
-        else
-            return res.status(404).json("Not Found").end()
-    }
-} 
+        return res.status(404).json("Not found").end()
+}
 
 
 
