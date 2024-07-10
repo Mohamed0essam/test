@@ -12,7 +12,5 @@ const hashPassword = (password) => {
 
 module.exports = {
     comaparePasswords,
-    compareKeys,
     hashPassword,
-    hashKey
 };
