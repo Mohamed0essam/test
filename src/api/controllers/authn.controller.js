@@ -107,10 +107,8 @@ const login = async (req, res) => {
     const updatedSession = await userService.updateUserSession(userFull.user._id, sessionToken)
     await userService.updateUserOnlineStatus(userFull.user._id, true)
 
-    let hello
     if (!userFull.user.deviceToken.includes(deviceToken))
         hello = await userService.updateUserDeviceToken(userFull.user._id, deviceToken)
-    console.log(!userFull.user.deviceToken.includes(deviceToken), hello)
 
     let userWithoutPassword = await User.findById(userFull.user._id)
 
@@ -133,11 +131,12 @@ const login = async (req, res) => {
 const keyLogin = async(req, res) =>
 {
     const key = req.headers.key
-    const device = req.headers.token
+    const device = req.body.deviceToken
     const decodedKey = await authServices.decodeAccessToken(key, process.env.authnKey)
     
     const user = await userService.findUserById(decodedKey._id)
     const deviceT = user.deviceToken
+    
     if (!deviceT.includes(device) || !user)
         return res.status(404).json({msg: "Not found"})
 
