@@ -369,6 +369,23 @@ const updateUserSession = async(userID, session) =>
 
 
 
+// Update user device tokens
+const updateUserDeviceToken = async(userID, deviceT) =>
+  {
+    try
+    {
+      let updatedDeviceToken = await User.findByIdAndUpdate(userID, {$push: {deviceToken: deviceT}}) 
+      updatedDeviceToken = await User.findById(userID, {_id: 0, deviceToken: 1})
+      return updatedDeviceToken.deviceToken
+    }
+    catch (err)
+    {
+      console.log("Update user device token error " + err)
+    }
+  }
+
+
+
 // Update user's online status
 const updateUserOnlineStatus = async (userID, status) =>
 {
@@ -422,6 +439,7 @@ module.exports={
   deleteUserGroup,
   updateUserEmailVerification,
   updateUserKey,
+  updateUserDeviceToken,
   updateUserSession,
   updateUserOnlineStatus,
   searchUsers
