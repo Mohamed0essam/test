@@ -3,13 +3,19 @@ const User = require('../models/user.model');
 const userService = require('../services/user.servies');
 const passwordUtils = require('../utils/password.utils');
 const authServices = require('../services/authn.services') ;
+const UserProfileModel = require('../models/user.model');
 
 
 const register = async (req, res)=>{
  
 // try  to create a new user with this information
 
-    const {email,username, password} =  req.body;
+    const {email, username, password} =  req.body;
+    let deviceToken = req.body.deviceToken
+    const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
+    
+    if (regex.test(deviceToken) === false)
+        deviceToken = ""
     //check  email  Exists
     const userEmailExists = await userService.findUserByEmail(email);
     const usernameExists = await userService.findUserByUsername(username);
@@ -33,6 +39,7 @@ const register = async (req, res)=>{
         email,
         username,
         password: HashedPassword,
+        deviceToken: deviceToken
     });
 
     //send res and msg user have been created 
@@ -77,9 +84,16 @@ const getAllUsers = async(req, res)=>{
 
 const login = async (req, res) => {
 // check credintionls 
-    const   {email , password} = req.body;
+    const {email , password} = req.body;
+    let deviceToken = req.body.deviceToken
+    const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
+    
+    if (regex.test(deviceToken) === false)
+        deviceToken = ""
+
     const userFull = await userService.findUserByEmail(email);
     // const user = userService.findUserById(_id);
+
     if(!userFull){
         return res.status(401).json( {msg:"Invalid Credentials"});}
     // console.log(user._id, password)
@@ -90,17 +104,16 @@ const login = async (req, res) => {
     }
     
     const sessionToken = authServices.generateAccessToken(userFull.user, process.env.sessionKey, process.env.sessionExpiration);
-    const authnToken = authServices.generateAccessToken(userFull.user, process.env.authnKey, process.env.authnExpiration)
+    const updatedSession = await userService.updateUserSession(userFull.user._id, sessionToken)
     await userService.updateUserOnlineStatus(userFull.user._id, true)
 
-    const updatedAuthnToken = await userService.updateUserKey(userFull.user._id, authnToken)
-    const updatedSession = await userService.updateUserSession(userFull.user._id, sessionToken)
-    
-    // const temp = authServices.decodeAccessToken(authnToken, process.env.authnKey)
-    // console.log(updatedAuthnToken)
-    // console.log(Date.now())
-    
-    const userWithoutPassword = userFull.user.toObject();
+
+    if (!userFull.user.deviceToken.includes(deviceToken))
+        await userService.updateUserDeviceToken(userFull.user._id, deviceToken)
+
+    let userWithoutPassword = await User.findById(userFull.user._id)
+
+    userWithoutPassword = userWithoutPassword.toObject();
     delete userWithoutPassword.password;
     delete userWithoutPassword.authenticationKey
     delete userWithoutPassword.session
@@ -111,7 +124,7 @@ const login = async (req, res) => {
         followerCount: userFull.followerCount,
         followCount: userFull.followCount,
         sessionToken: String(updatedSession),
-        authnToken: updatedAuthnToken
+        authnToken: userFull.user.authenticationKey
     })
 }
 
@@ -119,14 +132,13 @@ const login = async (req, res) => {
 const keyLogin = async(req, res) =>
 {
     const key = req.headers.key
+    const device = req.headers.token
     const decodedKey = await authServices.decodeAccessToken(key, process.env.authnKey)
-    if (!decodedKey)
-        return res.status(404).json("Not found")
-    // console.log(decodedKey)
     
     const user = await userService.findUserById(decodedKey._id)
-    if (!user)
-        return res.status(404).json("Not found")
+    const deviceT = user.deviceToken
+    if (!deviceT.includes(device) || !user)
+        return res.status(404).json({msg: "Not found"})
 
     await userService.updateUserOnlineStatus(decodedKey._id, true)
     const userWithoutPassword = user.toObject()
