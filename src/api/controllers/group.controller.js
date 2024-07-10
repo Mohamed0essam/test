@@ -77,7 +77,7 @@ const readGroup = async(req, res) =>
 const readUserGroups = async(req, res) =>
 {
     const userID = req.user.id
-    const groups = await groupServices.readUserGroups(userID)
+    const groups = await groupServices.readUserGroups(userID, true)
     if (!groups)
         return res.status(400).json("User has no groups").end()
     return res.status(200).json({msg:'Groups found', groups : groups}).end()
