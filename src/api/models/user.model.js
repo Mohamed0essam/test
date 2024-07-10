@@ -18,8 +18,7 @@ const UserProfileSchema = new mongoose.Schema({
       
 
   //security 
-  password : {type: String, required: true},                                                      // required:true  required:true
-  session: {type:String, unique: true},                                                         // Will be hashed
+  password : {type: String, required: true},                                                         // Will be hashed
   authenticationKey: {type: String, unique: true, required: false},                             // Will be hashed
   deviceToken: [{type: String, required: false, default: ["empty"]}],
   emailVerifcationToken : {type:String},

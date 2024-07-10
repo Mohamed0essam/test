@@ -53,7 +53,6 @@ const register = async (req, res)=>{
     const authnToken = authServices.generateAccessToken(newUser, process.env.authnKey, process.env.authnExpiration)
     await userService.updateUserOnlineStatus(newUser._id, true)
     const updatedAuthnToken = await userService.updateUserKey(newUser._id, authnToken)
-    const updatedSession = await userService.updateUserSession(newUser._id, sessionToken)
     // console.log(updatedAuthnToken)
 
     const userWithoutPassword = newUser.toObject();
@@ -64,15 +63,15 @@ const register = async (req, res)=>{
     return res.status(200).json({
         msg:'created succussfully',
         user: userWithoutPassword, 
-        sessionToken: String(updatedSession),
+        sessionToken: sessionToken,
         authnToken: updatedAuthnToken
     })
         
     //use userService to save the user data 
-
-
-
 }
+
+
+
 const getAllUsers = async(req, res)=>{
     const users =  await userService.getAllUsers();
     if(!users){
@@ -104,7 +103,6 @@ const login = async (req, res) => {
     }
     
     const sessionToken = authServices.generateAccessToken(userFull.user, process.env.sessionKey, process.env.sessionExpiration);
-    const updatedSession = await userService.updateUserSession(userFull.user._id, sessionToken)
     await userService.updateUserOnlineStatus(userFull.user._id, true)
 
     if (!userFull.user.deviceToken.includes(deviceToken))
@@ -122,7 +120,7 @@ const login = async (req, res) => {
         user: userWithoutPassword, 
         followerCount: userFull.followerCount,
         followCount: userFull.followCount,
-        sessionToken: String(updatedSession),
+        sessionToken: sessionToken,
         authnToken: userFull.user.authenticationKey
     })
 }
@@ -150,8 +148,7 @@ const keyLogin = async(req, res) =>
         delete userWithoutPassword.session
 
         const sessionToken = authServices.generateAccessToken(userWithoutPassword, process.env.sessionKey, process.env.sessionExpiration)
-        const updatedSession = await userService.updateUserSession(decodedKey._id, sessionToken)
-        return res.status(200).json({msg: "User found", user: userWithoutPassword, sessionToken: String(updatedSession)})
+        return res.status(200).json({msg: "User found", user: userWithoutPassword, sessionToken: sessionToken})
     }
     return res.status(404).json("Not Found")
 }
