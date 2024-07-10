@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const UserProfileSchema = new mongoose.Schema({
-  // role :        { type: mongoose.Schema.Types.ObjectId,ref: 'UserRole'},
-  // user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  //displayName:  { type: String , required: true, match: /^[a-zA-Z\s]+$/, },   //fisrt & last  name 
-
   // To get the server running
 
   profilePhoto: {type: String},                                                                   // URL or file path
@@ -25,7 +21,7 @@ const UserProfileSchema = new mongoose.Schema({
   password : {type: String, required: true},                                                      // required:true  required:true
   session: {type:String, unique: true},                                                         // Will be hashed
   authenticationKey: {type: String, unique: true, required: false},                             // Will be hashed
-  deviceToken: {type: String, required: false, default: ["empty"]},
+  deviceToken: [{type: String, required: false, default: ["empty"]}],
   emailVerifcationToken : {type:String},
   isEmailVerified: {type:Boolean, default: false},
 

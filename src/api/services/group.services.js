@@ -75,7 +75,6 @@ const readGroup = async(groupID, userID) =>
     }
 }
 
-
 const readUserGroups = async(userID, owner) => 
 {
     try 
@@ -94,7 +93,6 @@ const readUserGroups = async(userID, owner) =>
         console.log('Read user groups error: ' + err)
     }
 }
-    
 
 
 const readGroupParticipants = async(groupID) =>

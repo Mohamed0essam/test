@@ -374,9 +374,10 @@ const updateUserDeviceToken = async(userID, deviceT) =>
 {
   try
   {
-    let updatedDeviceToken = await User.findByIdAndUpdate(userID, {$push: {deviceToken: deviceT}}) 
+    let updatedDeviceToken = await User.findByIdAndUpdate(userID, {$push: {deviceToken: [deviceT]}}) 
     updatedDeviceToken = await User.findById(userID, {_id: 0, deviceToken: 1})
-    return updatedDeviceToken.deviceToken
+    console.log(updatedDeviceToken)
+    return updatedDeviceToken
   }
   catch (err)
   {

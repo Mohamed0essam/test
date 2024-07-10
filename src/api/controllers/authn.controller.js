@@ -107,9 +107,10 @@ const login = async (req, res) => {
     const updatedSession = await userService.updateUserSession(userFull.user._id, sessionToken)
     await userService.updateUserOnlineStatus(userFull.user._id, true)
 
-
+    let hello
     if (!userFull.user.deviceToken.includes(deviceToken))
-        await userService.updateUserDeviceToken(userFull.user._id, deviceToken)
+        hello = await userService.updateUserDeviceToken(userFull.user._id, deviceToken)
+    console.log(!userFull.user.deviceToken.includes(deviceToken), hello)
 
     let userWithoutPassword = await User.findById(userFull.user._id)
 

@@ -7,6 +7,7 @@ const createPost = async(req, res) =>
 {
     const userID = req.user.id
     const {groupID, taskID, content, visibility, attachedMedia} = req.body
+    console.log({groupID, taskID, content, visibility, attachedMedia})
     const newPost = await postServices.createPost({userID, groupID, taskID, content, visibility, attachedMedia})
     if (!newPost)
         return res.status(400).json("Invalid data").end()
