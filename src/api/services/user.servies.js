@@ -5,10 +5,10 @@ const { sanitizeFilter } = require('mongoose');
 
 
 // create user
-const createUser = async({ email,  username, password}) => {
+const createUser = async({ email,  username, password, deviceToken}) => {
   // console.log({ email, username, password})
 
-  const user =  new User({email, username, password})
+  const user =  new User({email, username, password, deviceToken: deviceToken})
   try{ 
     await user.save();
     return user;
@@ -371,18 +371,18 @@ const updateUserSession = async(userID, session) =>
 
 // Update user device tokens
 const updateUserDeviceToken = async(userID, deviceT) =>
+{
+  try
   {
-    try
-    {
-      let updatedDeviceToken = await User.findByIdAndUpdate(userID, {$push: {deviceToken: deviceT}}) 
-      updatedDeviceToken = await User.findById(userID, {_id: 0, deviceToken: 1})
-      return updatedDeviceToken.deviceToken
-    }
-    catch (err)
-    {
-      console.log("Update user device token error " + err)
-    }
+    let updatedDeviceToken = await User.findByIdAndUpdate(userID, {$push: {deviceToken: deviceT}}) 
+    updatedDeviceToken = await User.findById(userID, {_id: 0, deviceToken: 1})
+    return updatedDeviceToken.deviceToken
   }
+  catch (err)
+  {
+    console.log("Update user device token error " + err)
+  }
+}
 
 
 
@@ -439,8 +439,8 @@ module.exports={
   deleteUserGroup,
   updateUserEmailVerification,
   updateUserKey,
-  updateUserDeviceToken,
   updateUserSession,
+  updateUserDeviceToken,
   updateUserOnlineStatus,
   searchUsers
 }
