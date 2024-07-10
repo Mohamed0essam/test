@@ -75,16 +75,16 @@ const readGroup = async(groupID, userID) =>
     }
 }
 
-const readUserGroups = async(userID) => 
+
+const readUserGroups = async(userID, owner) => 
 {
     try 
-    {   
+    {
         let groups
         if (owner == true)
             groups = await Group.find({joinedUsers : userID}, {name: 1, groupPhoto: 1, privacy:1 })
         else
             groups = await Group.find({joinedUsers : userID, privacy: "public"}, {name: 1, groupPhoto: 1, privacy:1 })
-        
         if (!groups)
             return false
         return groups
@@ -94,6 +94,7 @@ const readUserGroups = async(userID) =>
         console.log('Read user groups error: ' + err)
     }
 }
+    
 
 
 const readGroupParticipants = async(groupID) =>
