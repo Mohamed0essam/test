@@ -11,6 +11,7 @@ const register = async (req, res)=>{
 
     const {email, username, password} =  req.body;
     let deviceToken = req.body.deviceToken
+    console.log("DevToken at Reg: " + deviceToken)
     const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
     
     if (regex.test(deviceToken) === false)
@@ -84,6 +85,7 @@ const login = async (req, res) => {
 // check credintionls 
     const {email , password} = req.body;
     let deviceToken = req.body.deviceToken
+    console.log("DevToken at Reg: " + deviceToken)
     const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
     
     if (regex.test(deviceToken) === false)
@@ -128,6 +130,7 @@ const keyLogin = async(req, res) =>
 {
     const key = req.headers.key
     const device = req.body.deviceToken
+    console.log("DevToken at KeyLog: " + device)
     const decodedKey = authServices.decodeAccessToken(key, process.env.authnKey)
     
     const user = await userService.findUserById(decodedKey._id)
