@@ -41,6 +41,23 @@ const readPost = async(req, res) =>
 }
 
 
+// Read user posts
+const readUserPosts = async(req, res) =>
+{
+    const userID = req.user.id
+    const profileID = req.params._id
+    let owner = true
+
+    if (userID != profileID)
+        owner = false    
+
+    const posts = await postServices.readUserPosts(profileID, owner)
+    if (!posts)
+        return res.status(404).json("Not found")
+    return res.status(200).json(posts).end()
+}
+
+
 // Update post
 const updatePost = async(req, res) =>
 {
@@ -147,6 +164,7 @@ module.exports =
     createPost,
     readAllPosts,
     readPost,
+    readUserPosts,
     updatePost,
     likePost,
     unlikePost,

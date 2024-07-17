@@ -146,6 +146,24 @@ const readPost = async(userID, postID) =>
 
 
 // Read User's Posts for Owner Only
+const readUserPosts = async(profileID, owner) =>
+{
+    try
+    {
+        let posts = null
+        if (owner == true)
+            posts = await Post.find({owner: profileID})
+
+        if (!posts)
+            return false
+        return posts
+    }
+    catch (err)
+    {
+        console.log("Read user post error: " + err)
+    }
+}
+
 
 
 // Update post
@@ -288,6 +306,7 @@ module.exports =
     createPost,
     readAllPosts,
     readPost,
+    readUserPosts,
     updatePost,
     likePost,
     unlikePost,
