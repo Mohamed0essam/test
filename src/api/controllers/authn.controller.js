@@ -10,11 +10,11 @@ const register = async (req, res)=>{
 // try  to create a new user with this information
 
     const {email, username, password} =  req.body;
-    let deviceToken = req.body.deviceToken || ""
-    // const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
+    let deviceToken = req.body.deviceToken
+    const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
     
-    // if (regex.test(deviceToken) === false)
-    //     deviceToken = ""
+    if (regex.test(deviceToken) === false)
+        deviceToken = ""
     //check  email  Exists
     const userEmailExists = await userService.findUserByEmail(email);
     const usernameExists = await userService.findUserByUsername(username);
