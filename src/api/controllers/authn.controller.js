@@ -3,7 +3,6 @@ const User = require('../models/user.model');
 const userService = require('../services/user.servies');
 const passwordUtils = require('../utils/password.utils');
 const authServices = require('../services/authn.services') ;
-const UserProfileModel = require('../models/user.model');
 
 
 const register = async (req, res)=>{
@@ -35,7 +34,7 @@ const register = async (req, res)=>{
     const HashedPassword = passwordUtils.hashPassword(password);
     // console.log('HashedPassword is'+ HashedPassword)
 
-    const newUser =await userService.createUser({
+    const newUser = await userService.createUser({
         email,
         username,
         password: HashedPassword,
@@ -99,7 +98,7 @@ const login = async (req, res) => {
 
     const isValidPass = passwordUtils.comaparePasswords(password, userFull.user.password);
     if (!isValidPass) { 
-        return res.status(401).json ({msg : "Invalid credentials, wrong password"});
+        return res.status(401).json ({msg : "Invalid Credentials"});
     }
     
     const sessionToken = authServices.generateAccessToken(userFull.user, process.env.sessionKey, process.env.sessionExpiration);
@@ -113,7 +112,6 @@ const login = async (req, res) => {
     userWithoutPassword = userWithoutPassword.toObject();
     delete userWithoutPassword.password;
     delete userWithoutPassword.authenticationKey
-    delete userWithoutPassword.session
 
     return res.status(200).json({
         msg:'login succussfully',
@@ -130,7 +128,7 @@ const keyLogin = async(req, res) =>
 {
     const key = req.headers.key
     const device = req.body.deviceToken
-    const decodedKey = await authServices.decodeAccessToken(key, process.env.authnKey)
+    const decodedKey = authServices.decodeAccessToken(key, process.env.authnKey)
     
     const user = await userService.findUserById(decodedKey._id)
     const deviceT = user.deviceToken
@@ -145,7 +143,6 @@ const keyLogin = async(req, res) =>
     if (key === userWithoutPassword.authenticationKey)
     {
         delete userWithoutPassword.authenticationKey
-        delete userWithoutPassword.session
 
         const sessionToken = authServices.generateAccessToken(userWithoutPassword, process.env.sessionKey, process.env.sessionExpiration)
         return res.status(200).json({msg: "User found", user: userWithoutPassword, sessionToken: sessionToken})
