@@ -12,10 +12,10 @@ const register = async (req, res)=>{
     const {email, username, password} =  req.body;
     let deviceToken = req.body.deviceToken
     console.log("DevToken at Reg: " + deviceToken)
-    const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
+    // const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
     
-    if (regex.test(deviceToken) === false)
-        deviceToken = ""
+    // if (regex.test(deviceToken) === false)
+    //     deviceToken = ""
     //check  email  Exists
     const userEmailExists = await userService.findUserByEmail(email);
     const usernameExists = await userService.findUserByUsername(username);
@@ -86,10 +86,10 @@ const login = async (req, res) => {
     const {email , password} = req.body;
     let deviceToken = req.body.deviceToken
     console.log("DevToken at Reg: " + deviceToken)
-    const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
+    // const regex = /^[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$/
     
-    if (regex.test(deviceToken) === false)
-        deviceToken = ""
+    // if (regex.test(deviceToken) === false)
+    //     deviceToken = ""
 
     const userFull = await userService.findUserByEmail(email);
     // const user = userService.findUserById(_id);
