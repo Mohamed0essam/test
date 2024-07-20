@@ -23,6 +23,7 @@ services:
    sessionExpiration: 30m
    authnKey: 'd8daa7673293fd4a2da947afd8096efb4c976fb615dbc83d9a2f3458fa6cd57504ae9f5d113c89ec391d148a4e88a89e0a11889ac0c63ef0e75cba1cca6321f7'
    authnExpiration: 21600m
+   MLURL = "http://ec2-35-180-205-215.eu-west-3.compute.amazonaws.com:4000"
   depends_on:
    - mongo_db
 
