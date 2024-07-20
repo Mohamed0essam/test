@@ -55,12 +55,12 @@ const readAllPosts = async(userID, postIDs) =>
         // const postIDs = await getPostsData(userID)
         // console.log("Hello",postIDs)
 
-        let posts = await Post.find({_id: {$in: postIDs}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1})
-        if (posts.length == 0)
-        {
-            const userGroups = await groupServices.readUserGroups(userID)
-            posts = await Post.find({group: {$in: userGroups}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1}).sort({comments: -1, createdAt: 1})
-        }
+    //    let posts = await Post.find({_id: {$in: postIDs}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1})
+        // if (posts.length == 0)
+    //    {
+        const userGroups = await groupServices.readUserGroups(userID)
+        const posts = await Post.find({group: {$in: userGroups}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1}).sort({comments: -1, createdAt: 1})
+        // }
 
         let collectedPosts = []
         let user, group, post, liked

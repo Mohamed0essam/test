@@ -21,9 +21,10 @@ const createPost = async(req, res) =>
 const readAllPosts = async(req, res) =>
 {
     const userID = req.user.id  // Use it to see if the current user liked any of the sent posts
-    const postIDs = await getRecommendedPosts(userID)
+    // const postIDs = await getRecommendedPosts(userID)
 
-    const posts = await postServices.readAllPosts(userID, postIDs)
+    const posts = await postServices.readAllPosts(userID)
+    // const posts = await postServices.readAllPosts(userID, postIDs)
     if (!posts)
         return res.status(404).json('Could not fetch all posts').end()
     
