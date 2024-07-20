@@ -95,6 +95,7 @@ const readUserGroups = async(userID, owner) =>
 }
 
 
+
 const readGroupParticipants = async(groupID) =>
 {
     // Does not require identity checks excpet for anonymous users which should not be able to access any data from the system.
@@ -111,6 +112,53 @@ const readGroupParticipants = async(groupID) =>
         console.log("Read group participants error: " + err)
     }
 }
+
+
+
+const getUsersInGroup = async(groupID)=>{
+    // console.log(`groupID : ${groupID}`);
+    //todo use the user in the goup from the joinedUsers and the owner.
+    //todo return usersids 
+    try {
+        const group = await Group.findById(groupID).populate('joinedUsers');
+        
+        if (!group) {
+            console.log('Group not found');
+            return [];
+        }
+
+        const userIDs = group.joinedUsers.map(user => user._id.toString());
+        userIDs.push(group.owner._id.toString());
+
+        // console.log( ` serviese get users InGroup   users id : ${userIDs} \n`)
+
+        return userIDs;
+    } catch (error) {
+        console.log('Error getting users in group:', error);
+    }
+}
+
+
+
+
+const getUserGroups = async (userID) => {
+    try {
+        // Search for groups where the user is in the joinedUsers array
+        const userGroups = await Group.find({ joinedUsers: userID });
+
+        // Log the groups found
+        // console.log(`Groups joined by user ${userID}: ${userGroups}`);
+
+        return userGroups;
+    } catch (err) {
+        console.error('Error reading user groups:', err);
+        return [];
+    }
+};
+
+
+
+
 
 // Update group
 const updateGroup = async(groupID, {name, description, groupPhoto, endDate, filteredFiles, privacy, filteredCategories}) => 
@@ -269,6 +317,8 @@ module.exports =
     readGroup,
     readUserGroups,
     readGroupParticipants,
+    getUsersInGroup,
+    getUserGroups,
     updateGroup,
     joinGroup,
     leaveGroup,

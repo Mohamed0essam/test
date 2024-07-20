@@ -1,10 +1,13 @@
 // Post CRUD
 
 const commentServices = require('./comment.services')
+const groupServices = require('../services/group.services')
 const Group = require('../models/group.model')
 const participant = require('../middlewares/userValidations.middleware')
 const Post = require('../models/post.model')
 const User = require('../models/user.model')
+const axios = require('axios');
+const { report } = require('../routes/post.routes')
 require('dotenv').config()
 
 // Create post
@@ -45,13 +48,19 @@ const createPost = async({userID, groupID, taskID, content, visibility, attached
 
 
 // Read all posts
-const readAllPosts = async(userID) => 
+const readAllPosts = async(userID, postIDs) => 
 {
     try
     {
-        const posts = await Post.find({}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1})
-        if (!posts)
-            return false
+        // const postIDs = await getPostsData(userID)
+        // console.log("Hello",postIDs)
+
+        let posts = await Post.find({_id: {$in: postIDs}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1})
+        if (posts.length == 0)
+        {
+            const userGroups = await groupServices.readUserGroups(userID)
+            posts = await Post.find({group: {$in: userGroups}}, {_id: 1, owner: 1, group: 1, createdAt: 1, content: 1, visibility: 1 ,attachedMedia: 1, likes: 1, comments: 1}).sort({comments: -1, createdAt: 1})
+        }
 
         let collectedPosts = []
         let user, group, post, liked
@@ -165,7 +174,6 @@ const readUserPosts = async(profileID, owner) =>
 }
 
 
-
 // Update post
 const updatePost = async(userID, postID, updates) => 
 {
@@ -271,35 +279,129 @@ const searchPosts = async(searchQuery) =>
 {
     
 }
-// const getPostsData = async(userID)=>
-//     {
-//      const   posts = null
-//         //
-//         return posts
-//     }
 
-    const axios = require('axios');
-const { report } = require('../routes/post.routes')
+
+
 
 const getPostsData = async (userID) => {
-  try {
-    console.log(userID)
-    //print(`this is the post service ${userID}`)
-    const response = await axios.get(`http://127.0.0.1:8000/recommendations/${userID}`);
-    // process.env.MONGO_URI
-
-    //const response = await axios.get(`${process.env.MLURL}/recommendations/${userID}`);
-    
-    const recommendations = response.data.recommendations;
-
-    // Extract post IDs from the recommendations
-    const postIDs = recommendations.map(recommendation => recommendation.post_id);
-    return postIDs;
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to fetch recommended posts');
-  }
+    try {
+      console.log(userID)
+      //print(`this is the post service ${userID}`)
+    //   const response = await axios.get(`http://127.0.0.1:8000/posts/recommendations/${userID}`);
+      // process.env.MONGO_URI
+  
+      const response = await axios.get(`${process.env.MLURL}/posts/recommendations/${userID}`);
+      
+      const recommendations = response.data
+      console.log(` post service ${recommendations}`)
+  
+      // Extract post IDs from the recommendationss
+      // const postIDs = recommendations.map(recommendation => recommendation.post_id);
+      const postIDs = Object.values(recommendations.post_id);
+  
+      return postIDs;
+    } catch (error) {
+      console.log(`Failed to fetch recommended posts erorr: ${error}`);
+      return []
+    }
 };
+  
+
+const getPostsInGroup = async (groupID ) => {
+      try {
+          const groupPostsIDs = []
+        //  console.log( `getPostsInGroup   group id :${groupID} \n`)
+          
+  
+          // Query to find posts id 
+          //const posts = await Post.find({ group: groupID });
+          const posts = await Post.find({ group: groupID }).select('_id');
+  
+         // console.log( `getPostsInGroup   posts id : ${posts} \n`)
+  
+          // Extract the post IDs and push them into groupPostsIDs array
+          posts.forEach(post => groupPostsIDs.push(post._id));
+          return groupPostsIDs;
+  
+      }catch (err){
+          console.log('Error getting posts in group:' + err)
+          return null;
+      }
+  
+}
+
+
+const checkIfUserLikedPost = async(userID, postID)=>{
+      //  check if the userID found in the array of Post.lieks 
+      try {
+          // Find the post by postID and check if userID is in the likes array
+          const post = await Post.findById(postID).select('likes').exec();
+      
+          if (!post) {
+            console.log(`Post with ID ${postID} not found`);
+            return 0; // Post not found
+          }
+      
+          // Check if userID exists in the likes array
+          const userLiked = post.likes.some(id => id.equals(userID));
+      
+          return userLiked ? 1 : 0;
+        } catch (err) {
+          console.log('Error checking if user liked post: ' + err);
+          return 0; // Return 0 on error
+        }
+  
+}
+  
+
+const sendPostsData = async(url,data)=>{
+  
+    try{
+        const sendResponse   = await axios.post(`${process.env.MLURL}/posts/${url}/`, data);
+        // const response = await axios.get(`${process.env.MLURL}/posts/recommendations/${userID}`);
+        // console.log(`\n  posts sendResponse${sendResponse}\n`)
+        console.log("Posts sendResponse: " +  JSON.stringify(sendResponse.data, null, 2));
+        return 1 
+    }catch(err){
+        console.log(`\n  posts sendResponse error ${err}\n`)
+    }  
+}
+
+
+const getLikeCommentCount = async(postID)=>{
+      try {
+          const post = await Post.findById(postID).select('likes comments').exec();
+          if (!post) {
+              console.log(`Post with ID ${postID} not found`);
+              return 0; // Post not found
+              }
+          return post.likes.length + post.comments.length;
+      } catch (err) {
+          console.log('Error getting like and comment count: ' + err);
+          return 0; // Return 0 on error
+      }           
+}
+
+
+const userLikeOrOwnPost = async(post_id , user_id )=>{
+   // check if the post.like contains the user_id?
+   // check if the post.author contains the user_id   
+   try {
+      const post = await Post.findById(post_id).select('likes owner').exec();
+      if (!post) {
+          console.log(`Post with ID ${post_id} not found`);
+          return 0; // Post not found
+          }
+          const userLiked = post.likes.some(id => id.equals(user_id));
+          const userOwns = post.owner.equals(user_id);
+          return userLiked || userOwns;
+          } catch (err) {
+              console.log('Error checking if user liked post: ' + err);
+              return 0; // Return 0 on error    
+  }
+}
+
+
 
 module.exports = 
 {
@@ -313,5 +415,10 @@ module.exports =
     reportPost,
     deletePost,
     searchPosts,
-    getPostsData
+    getPostsData,
+    getPostsInGroup,
+    checkIfUserLikedPost,
+    sendPostsData,
+    getLikeCommentCount,
+    userLikeOrOwnPost
 }

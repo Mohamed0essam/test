@@ -1,4 +1,5 @@
 // Post CRUD
+const groupServices = require('../services/group.services')
 const postServices = require('../services/post.services')
 
 
@@ -20,7 +21,9 @@ const createPost = async(req, res) =>
 const readAllPosts = async(req, res) =>
 {
     const userID = req.user.id  // Use it to see if the current user liked any of the sent posts
-    const posts = await postServices.readAllPosts(userID)
+    const postIDs = await getRecommendedPosts(userID)
+
+    const posts = await postServices.readAllPosts(userID, postIDs)
     if (!posts)
         return res.status(404).json('Could not fetch all posts').end()
     
@@ -134,30 +137,149 @@ const searchPosts = async(req, res) =>
 
 // get recommendation posts 
 
-const getRecommendedPosts = async (req, res) => {
+const getRecommendedPosts = async (userID) => {
     // const userID = req.user.id 
-
-    const userID = req.body.userID;
    
+  // **** send data to ML 
+//    const userID = req.body.userID;
+
+
+   const {ok , msg} =await updateMLData(userID)
+   if(!ok) return res.status(404).json({msg : msg} )
+
+
+
+    // **** get data from ML 
 
     try {
         
-        console.log(`controller ${userID}`)
-    
-      const postIDs = await postServices.getPostsData(userID);
-      
-      const posts = [];
-      for (let i = 0; i < Math.min(20, postIDs.length); i++) {
-        const post = await postServices.readPost(postIDs[i]);
-        posts.push(post);
+      let postIDs =[]
+       postIDs = await postServices.getPostsData(userID);
+      if( !postIDs.length  ){
+        // return res.status(404).json({msg : "No  recommended posts found"})
+        return []
       }
+    //   const posts = [];
+    //   for (let i = 0; i < Math.min(20, postIDs.length); i++) {
+    //     const post = await postServices.readPost(postIDs[i]);
+    //     posts.push(post);
+    //   }
+      
   
-      return res.status(200).json(posts);
+  
+    //   return res.status(200).json(posts);
+    return postIDs
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.log("Controller - Get recommended posts: " + error);
+    //   return res.status(500).json({ message: 'Internal server error' });
     }
-  };
+}
+
+
+
+const updateMLData = async (userID)=>{  
+    
+    // Get the user's groups using the groupServices
+    try{
+        const userGroups = await groupServices.getUserGroups(userID);
+        // console.log(`controller: groups of ${userID} are : ${userGroups } \n end `)
+       
+        if (!userGroups.length ){
+          let msg = ' No groups found, please join groups first' 
+          console.log(msg)
+          return {"ok":0, msg}
+        }
+
+
+
+        // Find posts ID and users ID using the groups
+        const groupPostsUsers = await Promise.all(userGroups.map(async (group) => {
+            // console.log(` \n groups posts : group  \n id  : X${group._id}X`)
+            const groupPostsIDs = await postServices.getPostsInGroup(group._id);
+            console.log(`groupPostsIDs ${groupPostsIDs} \n`)
+            
+            const groupUsersIDs = await groupServices.getUsersInGroup(group._id);
+            console.log(`groupUsersIDs : ${groupUsersIDs}`)
+            return { groupPostsIDs, groupUsersIDs };
+        }))
+
+      // Loop through each post and check if each user in the group liked the post
+      const postViewCounts = [];
+      const postLikesData = [];
+      for (const { groupPostsIDs, groupUsersIDs } of groupPostsUsers) {
+        for (const post_id of groupPostsIDs) {
+          // get post like comment count
+          const postView_count = await postServices.getLikeCommentCount(post_id);
+          //push the post_id and postvcount to the postViewCounts
+          for (const user_id of groupUsersIDs) {
+
+            // if (!postServices.userLikeOrOwnPost(post_id,user_id)){
+            if (true){
+              postViewCounts.push({ post_id, "view_count" : postView_count });
+              const like = await postServices.checkIfUserLikedPost(user_id, post_id);
+                // console.log(`postController likeStatus :  ${like}`)
+              postLikesData.push({ user_id, post_id, like});
+
+            }
+           
+          }
+        }
+      }
+
+
+    //   console.log("postLikesData: " +  JSON.stringify(postLikesData, null, 2));
+    //   console.log("postViewCounts : " +  JSON.stringify(postViewCounts, null, 2));
+
+      if (!postLikesData.length || !postViewCounts.length){
+        let msg =` please join groups first postLikesData ${postLikesData.length} \n postViewCounts${postViewCounts.length} `
+        console.log(msg)
+        return {"ok":0, msg}
+      }
+
+
+
+      //const resData   = await axios.post("http://127.0.0.1:8000/posts/likes/", postLikesData);
+      const resData= await postServices.sendPostsData("likes",postLikesData)
+      console.log("postLikesData -> resData: " + resData);
+      //test resdata if not 1 res with erorr
+      if(!resData){
+        let msg = 'ML server erorr with  postLikesData' 
+        console.log(msg)
+        return {"ok":0, msg}
+      } 
+
+
+
+      // count view 
+
+    //   console.log("postViewCounts : " +  JSON.stringify(postViewCounts, null, 2));
+
+      const postViewCountsresData= await postServices.sendPostsData("viewcounts",postViewCounts)  
+      // console.log("postViewCounts resData: " + postViewCountsresData);
+      if(!postViewCountsresData){
+        let msg = 'ML server erorr with  postViewCountsresData'
+        console.log(msg)
+        return {"ok":0, msg}
+      } 
+
+
+
+
+      let msg = " data sent to ml successfully"
+    //   console.log(msg)
+      return {"ok":1, msg}
+
+
+    }catch(err){
+        console.log("erorr test  post recom controllor : "+ err)
+        return {ok: 0, msg: "server internal erorr"}
+    }
+ 
+
+}
+
+
+
 
 module.exports = 
 {
@@ -166,6 +288,7 @@ module.exports =
     readPost,
     readUserPosts,
     updatePost,
+    updateMLData,
     likePost,
     unlikePost,
     reportPost,
